@@ -19,6 +19,9 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+builder.Services.AddScoped<IBodegaRepository, BodegaRepository>();
+builder.Services.AddScoped<IBodegaService, BodegaService>();
+
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 
@@ -35,9 +38,7 @@ app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProductCata
 
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
-app.MapGet("/health", () => Results.Ok(new { status = "ok", version = "1.0" }))
-   .WithName("Health").WithTags("Sistema");
-
+app.MapBodegaEndpoints();
 app.MapProductoEndpoints();
 
 app.Run();
