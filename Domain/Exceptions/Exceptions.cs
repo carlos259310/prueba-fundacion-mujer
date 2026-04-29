@@ -16,3 +16,6 @@ public sealed class StockNegativoException()
 
 public sealed class BodegaNoEncontradaException(int bodId)
     : DomainException($"La bodega con id '{bodId}' no existe.");
+
+public sealed class OperacionInvalidaException(string mensaje)
+    : DomainException(mensaje);
