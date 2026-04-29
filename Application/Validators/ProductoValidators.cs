@@ -15,6 +15,10 @@ public sealed class CreateProductoValidator : AbstractValidator<CreateProductoDt
             .NotEmpty().WithMessage("El código del producto es requerido.")
             .MaximumLength(50).WithMessage("El código no puede superar 50 caracteres.");
 
+        RuleFor(x => x.ProdDescripcion)
+            .MaximumLength(500).WithMessage("La descripción no puede superar 500 caracteres.")
+            .When(x => x.ProdDescripcion is not null);
+
         RuleFor(x => x.ProdMarca)
             .MaximumLength(100).WithMessage("La marca no puede superar 100 caracteres.")
             .When(x => x.ProdMarca is not null);
@@ -32,6 +36,10 @@ public sealed class UpdateProductoValidator : AbstractValidator<UpdateProductoDt
         RuleFor(x => x.ProdCodigo)
             .NotEmpty().WithMessage("El código del producto es requerido.")
             .MaximumLength(50).WithMessage("El código no puede superar 50 caracteres.");
+
+        RuleFor(x => x.ProdDescripcion)
+            .MaximumLength(500).WithMessage("La descripción no puede superar 500 caracteres.")
+            .When(x => x.ProdDescripcion is not null);
 
         RuleFor(x => x.ProdMarca)
             .MaximumLength(100).WithMessage("La marca no puede superar 100 caracteres.")
