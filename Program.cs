@@ -10,6 +10,10 @@ using ProductCatalog.Api.Infrastructure.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Railway asigna PORT dinámicamente; localmente usa 5080
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5080";
+builder.WebHost.UseUrls($"http://+:{port}");
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
