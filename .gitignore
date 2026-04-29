@@ -486,6 +486,3 @@ $RECYCLE.BIN/
 # AI tooling
 CLAUDE.md
 .claude/
-
-# VS Code
-.vscode/

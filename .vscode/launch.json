@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch API",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/ProductCatalog.Api.csproj",
+      "launchSettingsProfile": "ProductCatalog.Api",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "name": "Attach to Process",
+      "type": "dotnet",
+      "request": "attach"
+    }
+  ]
+}
