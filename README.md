@@ -5,6 +5,18 @@
 
 ---
 
+## 🚀 Demo en vivo
+
+| | URL |
+|---|---|
+| **Aplicación web** | https://prueba-fundacion-mujer-production.up.railway.app |
+| **Swagger UI** | https://prueba-fundacion-mujer-production.up.railway.app/swagger |
+| **API** | https://prueba-fundacion-mujer-production.up.railway.app/api/bodegas |
+
+> Desplegado en **Railway** · Base de datos **PostgreSQL en Supabase** · Redeploy automático en cada push a `main`.
+
+---
+
 ## Índice
 
 - [Vista rápida del sistema](#vista-rápida-del-sistema)
@@ -753,6 +765,9 @@ dotnet ef database update
 ## Despliegue en Railway
 
 La API está desplegada en **Railway** conectada a **Supabase (PostgreSQL)**.
+
+**URL de producción:** https://prueba-fundacion-mujer-production.up.railway.app
+**Swagger:** https://prueba-fundacion-mujer-production.up.railway.app/swagger
 
 ### Pasos para desplegar tu propia instancia
 
