@@ -1,6 +1,9 @@
 [build]
 builder = "nixpacks"
 
+[build.nixpacksPlan.phases.setup]
+nixPkgs = ["dotnet-sdk_8"]
+
 [deploy]
 startCommand = "dotnet ProductCatalog.Api.dll"
 healthcheckPath = "/"
