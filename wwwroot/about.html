@@ -83,10 +83,91 @@
     .del    { background:#fee2e2; color:#b91c1c; }
     .patch  { background:#f3e8ff; color:#7e22ce; }
     .ep-row { display:flex; align-items:baseline; gap:.5rem; padding:.35rem 0;
-              border-bottom:1px solid #f3e8ff; font-size:.85rem; }
+              border-bottom:1px solid #f3e8ff; font-size:.85rem; flex-wrap:wrap; }
     .ep-row:last-child { border-bottom:none; }
     .ep-path { font-family:monospace; color:#374151; }
     .ep-desc { color:#6b7280; font-size:.8rem; }
+
+    /* bloques de código tipo terminal */
+    .code-block {
+      background: #1e1b2e;
+      color: #e2d9f3;
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      font-family: 'Courier New', monospace;
+      font-size: .82rem;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    .code-block .cmd-comment { color: #9ca3af; }
+    .code-block .cmd-prompt  { color: #a78bfa; user-select: none; }
+    .code-block .cmd-text    { color: #e2d9f3; }
+    .code-block .cmd-output  { color: #86efac; }
+
+    /* tabla de base de datos */
+    .db-table {
+      font-size: .82rem;
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+    }
+    .db-table th {
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 700;
+      padding: .4rem .75rem;
+      border-bottom: 2px solid #d8b4fe;
+    }
+    .db-table td {
+      padding: .38rem .75rem;
+      border-bottom: 1px solid #f3e8ff;
+      vertical-align: top;
+    }
+    .db-table tr:last-child td { border-bottom: none; }
+    .db-table code {
+      background: var(--brand-light);
+      color: var(--brand);
+      padding: .05em .35em;
+      border-radius: 3px;
+      font-size: .8rem;
+    }
+    .badge-pk   { background:#fef9c3;color:#713f12;font-size:.7rem;padding:.1em .4em;border-radius:3px;font-weight:700; }
+    .badge-fk   { background:#dbeafe;color:#1e40af;font-size:.7rem;padding:.1em .4em;border-radius:3px;font-weight:700; }
+    .badge-null { background:#f3f4f6;color:#6b7280;font-size:.7rem;padding:.1em .4em;border-radius:3px; }
+
+    /* vista cards */
+    .vista-card {
+      border: 1.5px solid #e9d8fd;
+      border-radius: 12px;
+      padding: 1.25rem;
+      height: 100%;
+    }
+    .vista-icon {
+      width: 38px; height: 38px;
+      background: var(--brand-light);
+      color: var(--brand);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .rule-row {
+      display: flex; gap: .6rem; align-items: flex-start;
+      padding: .55rem 0;
+      border-bottom: 1px solid #f3e8ff;
+      font-size: .88rem;
+    }
+    .rule-row:last-child { border-bottom: none; }
+    .rule-num {
+      width: 22px; height: 22px; flex-shrink: 0;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem;
+      font-weight: 700;
+      margin-top: .1rem;
+    }
   </style>
 </head>
 <body>
@@ -133,19 +214,21 @@
   </div>
 
   <main class="container py-5">
-    <div class="row g-4">
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 1: Enunciado + Decisiones técnicas + Checklist   -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="row g-4 mb-4">
 
       <!-- COLUMNA IZQUIERDA -->
       <div class="col-lg-6">
 
-        <!-- PRUEBA TÉCNICA -->
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body p-4">
             <div class="section-title"><i class="bi bi-file-text me-1"></i>Enunciado de la prueba</div>
             <p class="text-muted small mb-3">
               Diseñar, desarrollar y desplegar una <strong>API REST lista para producción</strong> que permita gestionar un catálogo de productos y su stock. La API será el núcleo transaccional consumido por múltiples plataformas concurrentes.
             </p>
-
             <div class="req-item">
               <div class="req-icon"><i class="bi bi-gear"></i></div>
               <div>
@@ -184,7 +267,6 @@
           </div>
         </div>
 
-        <!-- DECISIONES TÉCNICAS -->
         <div class="card border-0 shadow-sm">
           <div class="card-body p-4">
             <div class="section-title"><i class="bi bi-lightbulb me-1"></i>Decisiones técnicas</div>
@@ -214,7 +296,7 @@
             </div>
             <div class="decision-row">
               <span class="decision-label">Deploy</span>
-              <span class="text-muted">Railway + Dockerfile multi-stage — detección automática, redeploy en push</span>
+              <span class="text-muted">Railway + Dockerfile multi-stage — redeploy automático en cada push</span>
             </div>
           </div>
         </div>
@@ -224,11 +306,9 @@
       <!-- COLUMNA DERECHA -->
       <div class="col-lg-6">
 
-        <!-- SOLUCIÓN IMPLEMENTADA -->
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body p-4">
             <div class="section-title"><i class="bi bi-check2-all me-1"></i>Solución implementada</div>
-
             <div class="check-row">
               <i class="bi bi-check-circle-fill"></i>
               <div><strong>CRUD completo de Productos</strong> — paginado, filtro por marca, códigos únicos (409)</div>
@@ -239,7 +319,7 @@
             </div>
             <div class="check-row">
               <i class="bi bi-check-circle-fill"></i>
-              <div><strong>Gestión de Inventario</strong> — stock por producto/bodega, ajuste directo con reglas</div>
+              <div><strong>Gestión de Inventario</strong> — vista global de stock, ajuste directo con reglas</div>
             </div>
             <div class="check-row">
               <i class="bi bi-check-circle-fill"></i>
@@ -267,7 +347,7 @@
             </div>
             <div class="check-row">
               <i class="bi bi-check-circle-fill"></i>
-              <div><strong>Interfaz visual</strong> — frontend Bootstrap 5 integrado, accesible desde la URL raíz</div>
+              <div><strong>Interfaz visual completa</strong> — frontend Bootstrap 5 integrado, sin framework SPA</div>
             </div>
           </div>
         </div>
@@ -280,6 +360,7 @@
             <div class="endpoint-block mb-3">
               <div class="fw-semibold small text-muted mb-2">Bodegas</div>
               <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/bodegas</span></div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/bodegas/{id}</span></div>
               <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/bodegas</span></div>
               <div class="ep-row"><span class="method put">PUT</span><span class="ep-path">/api/bodegas/{id}</span></div>
               <div class="ep-row"><span class="method del">DEL</span><span class="ep-path">/api/bodegas/{id}</span></div>
@@ -287,7 +368,8 @@
 
             <div class="endpoint-block mb-3">
               <div class="fw-semibold small text-muted mb-2">Productos</div>
-              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/productos</span><span class="ep-desc ms-2">paginado + filtro</span></div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/productos</span><span class="ep-desc ms-1">?page=&pageSize=</span></div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/productos/{id}</span></div>
               <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/productos</span></div>
               <div class="ep-row"><span class="method put">PUT</span><span class="ep-path">/api/productos/{id}</span></div>
               <div class="ep-row"><span class="method del">DEL</span><span class="ep-path">/api/productos/{id}</span></div>
@@ -295,15 +377,17 @@
 
             <div class="endpoint-block mb-3">
               <div class="fw-semibold small text-muted mb-2">Inventario / Stock</div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/inventario</span><span class="ep-desc ms-1">?prodId= (opcional)</span></div>
               <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/productos/{id}/stock</span></div>
               <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/productos/{id}/stock/{bodId}</span></div>
             </div>
 
             <div class="endpoint-block">
               <div class="fw-semibold small text-muted mb-2">Movimientos</div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos</span><span class="ep-desc ms-1">?prodId= &page= &pageSize=</span></div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos/{prodId}</span></div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos/reporte</span><span class="ep-desc ms-1">?fechaDesde= &fechaHasta=</span></div>
               <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/movimientos</span></div>
-              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos/{prodId}</span><span class="ep-desc ms-2">historial</span></div>
-              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos/reporte</span><span class="ep-desc ms-2">por fecha</span></div>
             </div>
           </div>
         </div>
@@ -311,20 +395,444 @@
       </div>
     </div>
 
-    <!-- STACK DE TECNOLOGÍAS -->
-    <div class="card border-0 shadow-sm mt-4">
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 2: Diseño de la base de datos                    -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="card border-0 shadow-sm mb-4">
       <div class="card-body p-4">
-        <div class="section-title"><i class="bi bi-stack me-1"></i>Stack tecnológico</div>
+        <div class="section-title"><i class="bi bi-diagram-2 me-1"></i>Diseño de la base de datos</div>
+        <p class="text-muted small mb-4">
+          PostgreSQL gestionado en <strong>Supabase</strong>. Las tablas se crean automáticamente al iniciar la API mediante migraciones EF Core.
+          El stock se almacena <strong>por combinación producto-bodega</strong> (no existe stock global): si un producto
+          tiene existencias en 3 bodegas, hay 3 filas en <code>inventario</code>.
+        </p>
+
+        <!-- diagrama relacional simplificado -->
+        <div class="p-3 rounded-3 mb-4" style="background:#1e1b2e;color:#e2d9f3;font-family:monospace;font-size:.78rem;line-height:1.8;overflow-x:auto">
+<pre style="margin:0;color:inherit">
+  ┌──────────────────────┐          ┌───────────────────────────────┐
+  │       bodegas        │          │          productos             │
+  ├──────────────────────┤          ├───────────────────────────────┤
+  │ bod_id        INT PK │◄──┐      │ prod_id     INT  PK AUTO      │
+  │ bod_nombre   VC(100) │   │      │ prod_nombre VC(200) NOT NULL  │
+  │ bod_principal  BOOL  │   │      │ prod_codigo VC(50)  UNIQUE    │
+  └──────────────────────┘   │      │ prod_descripcion TEXT NULL    │
+             ▲               │      │ prod_marca  VC(100) NULL      │
+             │               └──────└───────────────────────────────┘
+             │                                    ▲
+  ┌──────────┴──────────────────────────────┐     │
+  │               inventario                │     │
+  ├─────────────────────────────────────────┤     │
+  │ prod_id  INT  FK → productos  ┐ PK      │─────┘
+  │ bod_id   INT  FK → bodegas    ┘ compuesta
+  │ inv_stock          INT  DEFAULT 0       │
+  │ inv_last_update    TIMESTAMPTZ          │
+  └─────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────┐
+  │              movimientos                │
+  ├─────────────────────────────────────────┤
+  │ mov_id            INT  PK AUTO          │
+  │ prod_id           INT  FK → productos   │
+  │ mov_bodega_inicial INT  NULL            │ ← origen  (Salida / Traslado)
+  │ mov_bodega_final   INT  NULL            │ ← destino (Entrada / Traslado)
+  │ mov_cantidad      INT  NOT NULL         │
+  │ mov_tipo          TEXT (Entrada|Salida|Traslado)
+  │ mov_concepto      TEXT (Compra|Venta|Ajuste|Traslado|Devolucion)
+  │ mov_fecha         TIMESTAMPTZ NOT NULL  │
+  └─────────────────────────────────────────┘
+</pre>
+        </div>
+
+        <div class="row g-3">
+          <!-- bodegas -->
+          <div class="col-md-6">
+            <div class="fw-semibold small mb-2" style="color:var(--brand)"><i class="bi bi-building me-1"></i>bodegas</div>
+            <table class="db-table">
+              <thead><tr><th>Columna</th><th>Tipo</th><th>Info</th></tr></thead>
+              <tbody>
+                <tr><td><code>bod_id</code></td><td>integer</td><td><span class="badge-pk">PK</span> auto</td></tr>
+                <tr><td><code>bod_nombre</code></td><td>varchar(100)</td><td>NOT NULL</td></tr>
+                <tr><td><code>bod_principal</code></td><td>boolean</td><td>DEFAULT false</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- productos -->
+          <div class="col-md-6">
+            <div class="fw-semibold small mb-2" style="color:var(--brand)"><i class="bi bi-box me-1"></i>productos</div>
+            <table class="db-table">
+              <thead><tr><th>Columna</th><th>Tipo</th><th>Info</th></tr></thead>
+              <tbody>
+                <tr><td><code>prod_id</code></td><td>integer</td><td><span class="badge-pk">PK</span> auto</td></tr>
+                <tr><td><code>prod_nombre</code></td><td>varchar(200)</td><td>NOT NULL</td></tr>
+                <tr><td><code>prod_codigo</code></td><td>varchar(50)</td><td>UNIQUE</td></tr>
+                <tr><td><code>prod_descripcion</code></td><td>text</td><td><span class="badge-null">NULL</span></td></tr>
+                <tr><td><code>prod_marca</code></td><td>varchar(100)</td><td><span class="badge-null">NULL</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- inventario -->
+          <div class="col-md-6">
+            <div class="fw-semibold small mb-2" style="color:var(--brand)"><i class="bi bi-archive me-1"></i>inventario</div>
+            <table class="db-table">
+              <thead><tr><th>Columna</th><th>Tipo</th><th>Info</th></tr></thead>
+              <tbody>
+                <tr><td><code>prod_id</code></td><td>integer</td><td><span class="badge-pk">PK</span> <span class="badge-fk">FK</span></td></tr>
+                <tr><td><code>bod_id</code></td><td>integer</td><td><span class="badge-pk">PK</span> <span class="badge-fk">FK</span></td></tr>
+                <tr><td><code>inv_stock</code></td><td>integer</td><td>DEFAULT 0</td></tr>
+                <tr><td><code>inv_last_update</code></td><td>timestamptz</td><td>NOT NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- movimientos -->
+          <div class="col-md-6">
+            <div class="fw-semibold small mb-2" style="color:var(--brand)"><i class="bi bi-arrow-left-right me-1"></i>movimientos</div>
+            <table class="db-table">
+              <thead><tr><th>Columna</th><th>Tipo</th><th>Info</th></tr></thead>
+              <tbody>
+                <tr><td><code>mov_id</code></td><td>integer</td><td><span class="badge-pk">PK</span> auto</td></tr>
+                <tr><td><code>prod_id</code></td><td>integer</td><td><span class="badge-fk">FK</span></td></tr>
+                <tr><td><code>mov_bodega_inicial</code></td><td>integer</td><td><span class="badge-null">NULL</span></td></tr>
+                <tr><td><code>mov_bodega_final</code></td><td>integer</td><td><span class="badge-null">NULL</span></td></tr>
+                <tr><td><code>mov_cantidad</code></td><td>integer</td><td>NOT NULL</td></tr>
+                <tr><td><code>mov_tipo</code></td><td>text</td><td>enum</td></tr>
+                <tr><td><code>mov_concepto</code></td><td>text</td><td>enum</td></tr>
+                <tr><td><code>mov_fecha</code></td><td>timestamptz</td><td>NOT NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- regla de bodegas según tipo -->
+        <div class="mt-4 p-3 rounded-3" style="background:#f8f5ff;border:1.5px solid #e9d8fd">
+          <div class="fw-semibold small mb-2" style="color:var(--brand)">Lógica de bodegas por tipo de movimiento</div>
+          <div class="row g-2 text-center" style="font-size:.82rem">
+            <div class="col-md-4">
+              <div class="p-2 rounded-2" style="background:#dcfce7;border:1px solid #86efac">
+                <div class="fw-bold" style="color:#15803d">Entrada</div>
+                <div class="text-muted mt-1">bodega_inicial: —</div>
+                <div style="color:#15803d">bodega_final: requerida</div>
+                <div class="mt-1 text-muted" style="font-size:.75rem">Suma stock en destino</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-2 rounded-2" style="background:#fee2e2;border:1px solid #fca5a5">
+                <div class="fw-bold" style="color:#b91c1c">Salida</div>
+                <div style="color:#b91c1c">bodega_inicial: requerida</div>
+                <div class="text-muted mt-1">bodega_final: —</div>
+                <div class="mt-1 text-muted" style="font-size:.75rem">Resta stock de origen</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-2 rounded-2" style="background:#f3e8ff;border:1px solid #d8b4fe">
+                <div class="fw-bold" style="color:#7e22ce">Traslado</div>
+                <div style="color:#7e22ce">bodega_inicial: requerida</div>
+                <div style="color:#7e22ce">bodega_final: requerida</div>
+                <div class="mt-1 text-muted" style="font-size:.75rem">Resta origen + suma destino</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 3: Vistas del frontend                           -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="section-title"><i class="bi bi-layout-text-window me-1"></i>Vistas del frontend</div>
+        <p class="text-muted small mb-4">
+          El frontend está construido en <strong>HTML + Vanilla JS + Bootstrap 5.3.3</strong>, servido directamente por Kestrel desde <code>wwwroot/</code>.
+          No hay framework SPA — cada página es un HTML independiente que consume la API con <code>fetch()</code>.
+        </p>
+
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <div class="vista-card">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="vista-icon"><i class="bi bi-house"></i></div>
+                <div>
+                  <div class="fw-semibold" style="font-size:.9rem">Dashboard — <code style="font-size:.78rem">/</code></div>
+                  <div class="text-muted" style="font-size:.75rem">index.html</div>
+                </div>
+              </div>
+              <div class="text-muted small">
+                Punto de entrada del sistema. Muestra <strong>4 estadísticas en tiempo real</strong> (bodegas, productos,
+                movimientos de hoy, registros de stock) cargadas con <code>fetch</code> al abrir la página.
+                Incluye accesos directos a cada módulo y enlace a Swagger.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="vista-card">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="vista-icon"><i class="bi bi-building"></i></div>
+                <div>
+                  <div class="fw-semibold" style="font-size:.9rem">Bodegas — <code style="font-size:.78rem">/bodegas.html</code></div>
+                  <div class="text-muted" style="font-size:.75rem">CRUD completo de almacenes</div>
+                </div>
+              </div>
+              <div class="text-muted small">
+                Lista todas las bodegas con badge visual de "Principal / Secundaria".
+                Crea, edita y elimina bodegas mediante modales con validación en tiempo real.
+                Confirmación antes de eliminar. Toast de éxito al guardar.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="vista-card">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="vista-icon"><i class="bi bi-box"></i></div>
+                <div>
+                  <div class="fw-semibold" style="font-size:.9rem">Productos — <code style="font-size:.78rem">/productos.html</code></div>
+                  <div class="text-muted" style="font-size:.75rem">Catálogo paginado</div>
+                </div>
+              </div>
+              <div class="text-muted small">
+                Tabla paginada (10 por página) con controles de navegación.
+                CRUD completo: crear, editar y eliminar productos con modales.
+                Maneja el error <strong>409 Conflict</strong> cuando el código del producto ya existe.
+                Muestra código, marca y descripción.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="vista-card">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="vista-icon"><i class="bi bi-archive"></i></div>
+                <div>
+                  <div class="fw-semibold" style="font-size:.9rem">Inventario — <code style="font-size:.78rem">/inventario.html</code></div>
+                  <div class="text-muted" style="font-size:.75rem">Stock global con ajuste directo</div>
+                </div>
+              </div>
+              <div class="text-muted small">
+                Muestra <strong>todo el stock</strong> al cargar (sin seleccionar producto).
+                Filtro opcional por producto. Ajuste directo de stock (Entrada / Salida) con selección de concepto.
+                El stock en 0 se muestra en rojo. Previene stock negativo (error visible al usuario).
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="vista-card">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="vista-icon"><i class="bi bi-arrow-left-right"></i></div>
+                <div>
+                  <div class="fw-semibold" style="font-size:.9rem">Movimientos — <code style="font-size:.78rem">/movimientos.html</code></div>
+                  <div class="text-muted" style="font-size:.75rem">Historial + reporte + registro</div>
+                </div>
+              </div>
+              <div class="text-muted small">
+                <strong>Pestaña Historial:</strong> todos los movimientos paginados, filtro por producto, badges de color por tipo.<br>
+                <strong>Pestaña Reporte:</strong> resumen por rango de fechas con 4 tarjetas + tabla diaria.<br>
+                <strong>Modal Registrar:</strong> Entrada / Salida / Traslado — los campos de bodega aparecen dinámicamente según el tipo elegido.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="vista-card">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="vista-icon"><i class="bi bi-info-circle"></i></div>
+                <div>
+                  <div class="fw-semibold" style="font-size:.9rem">Acerca de — <code style="font-size:.78rem">/about.html</code></div>
+                  <div class="text-muted" style="font-size:.75rem">Esta página</div>
+                </div>
+              </div>
+              <div class="text-muted small">
+                Documentación completa del proyecto: enunciado, decisiones técnicas, checklist de implementación,
+                diseño de la base de datos, explicación de cada vista,
+                instrucciones de ejecución y referencia de endpoints.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 4: Cómo correr el proyecto                       -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="section-title"><i class="bi bi-terminal me-1"></i>Cómo clonar y ejecutar el proyecto</div>
+
+        <div class="row g-4">
+
+          <!-- Opción 1: dotnet run -->
+          <div class="col-lg-6">
+            <div class="fw-semibold mb-2" style="font-size:.9rem">
+              <span class="badge text-white me-2" style="background:var(--brand)">Opción 1</span>
+              Correr con .NET SDK
+            </div>
+            <p class="text-muted small mb-3">
+              Requiere <strong>.NET 8 SDK</strong>.
+              No necesitas instalar PostgreSQL — la cadena de conexión a Supabase ya está en <code>appsettings.json</code>.
+            </p>
+            <div class="code-block">
+              <div><span class="cmd-comment"># 1. Clonar el repositorio</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">git clone https://github.com/carlos259310/prueba-fundacion-mujer.git</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">cd prueba-fundacion-mujer</span></div>
+              <div class="mt-2"><span class="cmd-comment"># 2. Restaurar dependencias</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">dotnet restore</span></div>
+              <div class="mt-2"><span class="cmd-comment"># 3. Iniciar la API</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">dotnet run</span></div>
+              <div class="mt-2"><span class="cmd-comment"># Las migraciones y el seeder se ejecutan automáticamente</span></div>
+              <div><span class="cmd-output">→ http://localhost:5080</span></div>
+              <div><span class="cmd-output">→ http://localhost:5080/swagger</span></div>
+            </div>
+          </div>
+
+          <!-- Opción 2: Docker -->
+          <div class="col-lg-6">
+            <div class="fw-semibold mb-2" style="font-size:.9rem">
+              <span class="badge text-white me-2" style="background:#1e293b">Opción 2</span>
+              Correr con Docker
+            </div>
+            <p class="text-muted small mb-3">
+              Solo requiere <strong>Docker</strong> instalado. No necesitas .NET ni PostgreSQL localmente.
+            </p>
+            <div class="code-block">
+              <div><span class="cmd-comment"># 1. Clonar el repositorio</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">git clone https://github.com/carlos259310/prueba-fundacion-mujer.git</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">cd prueba-fundacion-mujer</span></div>
+              <div class="mt-2"><span class="cmd-comment"># 2. Construir la imagen</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">docker build -t productcatalog .</span></div>
+              <div class="mt-2"><span class="cmd-comment"># 3. Correr el contenedor</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">docker run -p 5080:8080 productcatalog</span></div>
+              <div class="mt-2"><span class="cmd-output">→ http://localhost:5080</span></div>
+            </div>
+          </div>
+
+          <!-- Comandos CLI -->
+          <div class="col-lg-6">
+            <div class="fw-semibold mb-2" style="font-size:.9rem">
+              <i class="bi bi-wrench me-1" style="color:var(--brand)"></i>
+              Comandos especiales de la CLI
+            </div>
+            <p class="text-muted small mb-3">
+              Útiles durante el desarrollo para gestionar el estado de la base de datos.
+            </p>
+            <div class="code-block">
+              <div><span class="cmd-comment"># Resetear la BD (borra todos los datos)</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">dotnet run -- --reset</span></div>
+              <div class="mt-2"><span class="cmd-comment"># Sembrar datos iniciales</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">dotnet run -- --seed</span></div>
+              <div class="mt-2"><span class="cmd-comment"># Resetear Y resembrar en un paso</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">dotnet run -- --reset-seed</span></div>
+              <div class="mt-2"><span class="cmd-comment"># Crear nueva migración (si cambias el modelo)</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">dotnet ef migrations add NombreMigracion</span></div>
+            </div>
+          </div>
+
+          <!-- Variables de entorno -->
+          <div class="col-lg-6">
+            <div class="fw-semibold mb-2" style="font-size:.9rem">
+              <i class="bi bi-sliders me-1" style="color:var(--brand)"></i>
+              Usar tu propia base de datos
+            </div>
+            <p class="text-muted small mb-3">
+              Para apuntar a otra instancia PostgreSQL, sobrescribir la cadena de conexión:
+            </p>
+            <div class="code-block">
+              <div><span class="cmd-comment"># Linux / macOS</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">export ConnectionStrings__DefaultConnection=\</span></div>
+              <div>&nbsp;&nbsp;<span class="cmd-text">"Host=localhost;Port=5432;Database=mibd;\</span></div>
+              <div>&nbsp;&nbsp;<span class="cmd-text">Username=postgres;Password=clave"</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">dotnet run</span></div>
+              <div class="mt-2"><span class="cmd-comment"># O con Docker</span></div>
+              <div><span class="cmd-prompt">$</span> <span class="cmd-text">docker run -p 5080:8080 \</span></div>
+              <div>&nbsp;&nbsp;<span class="cmd-text">-e ConnectionStrings__DefaultConnection="..." \</span></div>
+              <div>&nbsp;&nbsp;<span class="cmd-text">productcatalog</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- nota sobre migraciones automáticas -->
+        <div class="mt-4 p-3 rounded-3 d-flex gap-3 align-items-start" style="background:#f0fdf4;border:1.5px solid #86efac">
+          <i class="bi bi-info-circle-fill mt-1" style="color:#16a34a;flex-shrink:0"></i>
+          <div class="small">
+            <strong>Las migraciones se aplican automáticamente al iniciar.</strong>
+            No es necesario correr <code>dotnet ef database update</code> manualmente.
+            Al arrancar con la base de datos vacía, el seeder crea automáticamente 1 bodega y 5 productos de ejemplo.
+          </div>
+        </div>
+
+        <!-- nota sobre credenciales -->
+        <div class="mt-3 p-3 rounded-3 d-flex gap-3 align-items-start" style="background:#fffbeb;border:1.5px solid #fcd34d">
+          <i class="bi bi-exclamation-triangle-fill mt-1" style="color:#d97706;flex-shrink:0"></i>
+          <div class="small">
+            <strong>Nota sobre credenciales:</strong>
+            La cadena de conexión a Supabase está visible en <code>appsettings.json</code> de manera intencional
+            para que la prueba sea replicable sin configuración adicional.
+            En producción real, las credenciales irían en variables de entorno y nunca en el repositorio.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 5: Reglas de negocio                             -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="section-title"><i class="bi bi-shield-check me-1"></i>Reglas de negocio y validaciones</div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="rule-row">
+              <div class="rule-num">1</div>
+              <div><strong>Stock nunca negativo</strong> — Si la cantidad solicitada supera el stock disponible, la API responde <code>400</code> con mensaje descriptivo. Aplica tanto a movimientos como a ajuste directo PATCH.</div>
+            </div>
+            <div class="rule-row">
+              <div class="rule-num">2</div>
+              <div><strong>Código de producto único</strong> — El campo <code>prod_codigo</code> tiene restricción UNIQUE en la BD. Un código duplicado devuelve <code>409 Conflict</code>.</div>
+            </div>
+            <div class="rule-row">
+              <div class="rule-num">3</div>
+              <div><strong>Bodegas obligatorias según tipo</strong> — Entrada requiere bodega destino; Salida requiere bodega origen; Traslado requiere ambas. Si falta alguna, <code>400 Bad Request</code>.</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="rule-row">
+              <div class="rule-num">4</div>
+              <div><strong>Traslado no permitido en ajuste directo</strong> — El PATCH de stock solo acepta <code>Entrada</code> o <code>Salida</code>. Para traslados entre bodegas, usar <code>POST /api/movimientos</code>.</div>
+            </div>
+            <div class="rule-row">
+              <div class="rule-num">5</div>
+              <div><strong>Inventario es upsert automático</strong> — Al registrar el primer movimiento de un producto en una bodega, el registro de inventario se crea solo (stock = 0 → ajuste). No necesitas crearlo antes.</div>
+            </div>
+            <div class="rule-row">
+              <div class="rule-num">6</div>
+              <div><strong>Eliminación en cascada</strong> — Borrar un producto elimina su inventario y movimientos. Borrar una bodega elimina el inventario de esa bodega. Todo via EF Core Cascade.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STACK -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="section-title"><i class="bi bi-stack me-1"></i>Stack tecnológico completo</div>
         <div class="d-flex flex-wrap gap-2">
           <span class="tech-badge"><i class="bi bi-filetype-cs"></i>.NET 8 Minimal APIs</span>
           <span class="tech-badge"><i class="bi bi-database"></i>PostgreSQL + Supabase</span>
           <span class="tech-badge"><i class="bi bi-layers"></i>EF Core 8 + Npgsql</span>
-          <span class="tech-badge"><i class="bi bi-check2-square"></i>FluentValidation</span>
-          <span class="tech-badge"><i class="bi bi-file-earmark-code"></i>Swashbuckle Swagger</span>
+          <span class="tech-badge"><i class="bi bi-check2-square"></i>FluentValidation 11</span>
+          <span class="tech-badge"><i class="bi bi-file-earmark-code"></i>Swashbuckle 6 (Swagger)</span>
           <span class="tech-badge"><i class="bi bi-box"></i>Docker multi-stage</span>
           <span class="tech-badge"><i class="bi bi-cloud"></i>Railway</span>
           <span class="tech-badge"><i class="bi bi-layers-half"></i>Clean Architecture</span>
-          <span class="tech-badge"><i class="bi bi-bootstrap"></i>Bootstrap 5</span>
+          <span class="tech-badge"><i class="bi bi-bootstrap"></i>Bootstrap 5.3.3</span>
+          <span class="tech-badge"><i class="bi bi-code-square"></i>Vanilla JS ES2020</span>
+          <span class="tech-badge"><i class="bi bi-github"></i>GitHub</span>
         </div>
       </div>
     </div>
