@@ -22,3 +22,22 @@ public sealed record CreateMovimientoDto(
     TipoMovimiento MovTipo,
     ConceptoMovimiento MovConcepto
 );
+
+public sealed record ReporteMovimientosDto(
+    DateTime FechaDesde,
+    DateTime FechaHasta,
+    int? ProdId,
+    int TotalMovimientos,
+    int TotalEntradas,
+    int TotalSalidas,
+    int TotalTrasladados,
+    IReadOnlyList<ReporteItemDto> Detalle
+);
+
+public sealed record ReporteItemDto(
+    DateOnly Fecha,
+    int Entradas,
+    int Salidas,
+    int Traslados,
+    int Total
+);

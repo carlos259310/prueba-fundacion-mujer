@@ -10,6 +10,21 @@ public static class MovimientoEndpoints
     {
         var group = app.MapGroup("/api/movimientos").WithTags("Movimientos");
 
+        group.MapGet("/reporte", async (
+            DateTime fechaDesde,
+            DateTime fechaHasta,
+            IMovimientoService service,
+            int? prodId = null,
+            CancellationToken ct = default) =>
+        {
+            if (fechaHasta < fechaDesde)
+                return Results.BadRequest(new { error = "fechaHasta debe ser mayor o igual a fechaDesde." });
+            var reporte = await service.GenerarReporteAsync(fechaDesde, fechaHasta, prodId, ct);
+            return Results.Ok(reporte);
+        })
+        .WithName("ReporteMovimientos")
+        .WithSummary("Reporte de movimientos por rango de fechas (prodId opcional)");
+
         group.MapGet("/{prodId:int}", async (
             int prodId,
             IMovimientoService service,

@@ -33,4 +33,40 @@ public sealed class MovimientoRepository(AppDbContext db) : IMovimientoRepositor
         await db.SaveChangesAsync(ct);
         return movimiento;
     }
+
+    public async Task<ReporteMovimientosDto> GenerarReporteAsync(DateTime desde, DateTime hasta, int? prodId, CancellationToken ct = default)
+    {
+        var hastaSiguienteDia = hasta.Date.AddDays(1);
+
+        var query = db.Movimientos
+            .Where(x => x.MovFecha >= desde.Date && x.MovFecha < hastaSiguienteDia);
+
+        if (prodId.HasValue)
+            query = query.Where(x => x.ProdId == prodId.Value);
+
+        var movimientos = await query
+            .Select(x => new { x.MovFecha, x.MovTipo })
+            .ToListAsync(ct);
+
+        var detalle = movimientos
+            .GroupBy(x => DateOnly.FromDateTime(x.MovFecha))
+            .OrderBy(g => g.Key)
+            .Select(g => new ReporteItemDto(
+                g.Key,
+                g.Count(x => x.MovTipo == TipoMovimiento.Entrada),
+                g.Count(x => x.MovTipo == TipoMovimiento.Salida),
+                g.Count(x => x.MovTipo == TipoMovimiento.Traslado),
+                g.Count()))
+            .ToList();
+
+        return new ReporteMovimientosDto(
+            desde.Date,
+            hasta.Date,
+            prodId,
+            detalle.Sum(d => d.Total),
+            detalle.Sum(d => d.Entradas),
+            detalle.Sum(d => d.Salidas),
+            detalle.Sum(d => d.Traslados),
+            detalle);
+    }
 }

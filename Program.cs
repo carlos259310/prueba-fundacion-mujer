@@ -24,19 +24,64 @@ builder.Services.AddSwaggerGen(c =>
         Description = """
             API REST para gestión de catálogo de productos e inventario por bodega.
 
-            ## Flujo de uso recomendado
-            1. Crear una **Bodega** (`POST /api/bodegas`)
-            2. Crear un **Producto** (`POST /api/productos`)
-            3. Registrar una **Entrada** de stock (`POST /api/movimientos`)
-            4. Consultar el **stock** por bodega (`GET /api/productos/{id}/stock`)
-            5. Registrar **Salidas** o **Traslados** según necesidad
+            ---
+
+            ## Bodegas
+            Representan almacenes o puntos físicos de inventario.
+            - `GET    /api/bodegas` — listar todas las bodegas
+            - `GET    /api/bodegas/{id}` — detalle de una bodega
+            - `POST   /api/bodegas` — crear bodega (`bodNombre` requerido, `bodPrincipal` opcional)
+            - `PUT    /api/bodegas/{id}` — actualizar bodega
+            - `DELETE /api/bodegas/{id}` — eliminar bodega
+
+            ---
+
+            ## Productos
+            Catálogo de artículos disponibles para inventario.
+            - `GET    /api/productos` — listar productos (paginado: `page`, `pageSize`)
+            - `GET    /api/productos/{id}` — detalle de un producto
+            - `POST   /api/productos` — crear producto (`prodNombre` y `prodCodigo` requeridos; código único → `409`)
+            - `PUT    /api/productos/{id}` — actualizar producto
+            - `DELETE /api/productos/{id}` — eliminar producto
+
+            ---
+
+            ## Inventario
+            Stock de un producto en una bodega específica. No existe stock global.
+            - `GET   /api/productos/{id}/stock` — ver stock del producto en todas las bodegas
+            - `PATCH /api/productos/{id}/stock/{bodId}` — ajuste directo de stock
+
+            **Ajuste directo** (`cantidad` siempre positiva, `tipo` define la dirección):
+            - `Entrada` → suma al stock
+            - `Salida` → resta del stock (falla con `400` si stock insuficiente)
+            - `Traslado` → **no permitido** en ajuste directo (`400`)
+
+            ---
+
+            ## Movimientos
+            Registro histórico de todas las operaciones de inventario.
+            - `POST /api/movimientos` — registrar movimiento (Entrada, Salida o Traslado)
+            - `GET  /api/movimientos/{prodId}` — historial paginado por producto
+            - `GET  /api/movimientos/reporte` — reporte agrupado por día (`fechaDesde`, `fechaHasta` requeridos; `prodId` opcional)
+
+            | Tipo | `movBodegaInicial` | `movBodegaFinal` | Efecto |
+            |---|---|---|---|
+            | `Entrada` | — | ✅ requerida | Suma cantidad en bodega destino |
+            | `Salida` | ✅ requerida | — | Resta cantidad de bodega origen |
+            | `Traslado` | ✅ requerida | ✅ requerida | Resta de origen, suma a destino |
+
+            ---
 
             ## Reglas de negocio
-            - El stock **nunca puede ser negativo** → `400 Bad Request`
-            - El código de producto debe ser **único** → `409 Conflict`
-            - Los traslados requieren bodega origen y destino distintas
+            - Stock **nunca negativo** → `400 Bad Request`
+            - Código de producto **único** → `409 Conflict`
+            - Bodega inexistente en movimiento → `400 Bad Request`
+            - Producto inexistente → `404 Not Found`
+            - `Traslado` en ajuste directo PATCH → `400 Bad Request`
 
-            ## Enums disponibles
+            ---
+
+            ## Enums
             **TipoMovimiento:** `Entrada` · `Salida` · `Traslado`
 
             **ConceptoMovimiento:** `Compra` · `Venta` · `Ajuste` · `Traslado` · `Devolucion`
@@ -44,7 +89,7 @@ builder.Services.AddSwaggerGen(c =>
     });
     c.UseInlineDefinitionsForEnums();
     c.SchemaFilter<EnumSchemaFilter>();
-    c.TagActionsBy(api => api.GroupName != null ? [api.GroupName] : api.ActionDescriptor.RouteValues.ContainsKey("controller") ? [api.ActionDescriptor.RouteValues["controller"]] : ["General"]);
+    c.DocumentFilter<TagDescriptionFilter>();
 });
 
 builder.Services.ConfigureHttpJsonOptions(o =>

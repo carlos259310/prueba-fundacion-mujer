@@ -90,6 +90,9 @@ public sealed class MovimientoService(
         }
     }
 
+    public Task<ReporteMovimientosDto> GenerarReporteAsync(DateTime desde, DateTime hasta, int? prodId, CancellationToken ct = default)
+        => movRepo.GenerarReporteAsync(desde, hasta, prodId, ct);
+
     private async Task<Inventario> ObtenerOCrear(int prodId, int bodId, CancellationToken ct) =>
         await invRepo.GetAsync(prodId, bodId, ct)
             ?? new Inventario { ProdId = prodId, BodId = bodId, InvStock = 0, InvLastUpdate = DateTime.UtcNow };
