@@ -93,7 +93,7 @@ public sealed class MovimientoService(
         }
     }
 
-    public Task<ReporteMovimientosDto> GenerarReporteAsync(DateTime desde, DateTime hasta, int? prodId, CancellationToken ct = default)
+    public Task<ReporteMovimientosDto> GenerarReporteAsync(DateOnly desde, DateOnly hasta, int? prodId, CancellationToken ct = default)
         => movRepo.GenerarReporteAsync(desde, hasta, prodId, ct);
 
     private async Task<Inventario> ObtenerOCrear(int prodId, int bodId, CancellationToken ct) =>

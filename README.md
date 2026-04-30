@@ -248,7 +248,7 @@ La base de datos se crea y actualiza **automáticamente al iniciar la API** medi
 | `prod_id` | `integer` | NOT NULL, FK → `productos` | Cascade DELETE |
 | `mov_bodega_inicial` | `integer` | NULL | Requerido para Salida y Traslado |
 | `mov_bodega_final` | `integer` | NULL | Requerido para Entrada y Traslado |
-| `mov_cantidad` | `integer` | NOT NULL | Siempre positivo |
+| `mov_cantidad` | `integer` | NOT NULL | Entero positivo sin decimales (1–999 999) |
 | `mov_tipo` | `text` | NOT NULL | `Entrada` / `Salida` / `Traslado` |
 | `mov_concepto` | `text` | NOT NULL | `Compra` / `Venta` / `Ajuste` / `Traslado` / `Devolucion` |
 | `mov_fecha` | `timestamp with time zone` | NOT NULL | UTC, se asigna en el servidor |
@@ -443,7 +443,7 @@ GET  /api/bodegas                       → mapa bodId→bodNombre para el histo
 GET  /api/productos?pageSize=200        → poblar selects
 GET  /api/movimientos                   → historial completo paginado
 GET  /api/movimientos?prodId=X          → filtrado por producto
-GET  /api/movimientos/reporte?fechaDesde=&fechaHasta=  → reporte
+GET  /api/movimientos/reporte?fechaDesde=yyyy-MM-dd&fechaHasta=yyyy-MM-dd  → reporte por día
 POST /api/movimientos                   → registrar nuevo movimiento
 ```
 
@@ -467,9 +467,11 @@ POST /api/movimientos                   → registrar nuevo movimiento
 **Propósito:** Documentación interactiva de la API con posibilidad de probar todos los endpoints directamente desde el navegador.
 
 Incluye:
-- Descripción completa de cada endpoint con ejemplos de request/response
-- Esquemas de los DTOs
-- Tabla de reglas de negocio
+- Descripción detallada de cada endpoint con códigos de respuesta (`200`, `201`, `204`, `400`, `404`, `409`)
+- Esquemas de los DTOs con descripción de cada campo
+- Formato explícito de fechas (`string($date)` = `yyyy-MM-dd`) en el endpoint de reporte
+- Cantidades documentadas como enteros positivos sin decimales (mínimo: 1, máximo: 999 999)
+- Tabla de reglas de negocio y requisitos de bodega por tipo de movimiento
 - Enums documentados como strings (no como números)
 - Estilo visual personalizado con la paleta corporativa
 
@@ -511,14 +513,14 @@ Incluye:
 |---|---|---|---|---|
 | `GET` | `/api/movimientos` | `prodId`, `page`, `pageSize` | Historial completo (paginado) | `200 PagedResult<MovimientoDto>` |
 | `GET` | `/api/movimientos/{prodId}` | `page`, `pageSize` | Historial de un producto | `200 PagedResult<MovimientoDto>` |
-| `GET` | `/api/movimientos/reporte` | `fechaDesde`, `fechaHasta`, `prodId` | Reporte por rango de fechas | `200 ReporteMovimientosDto` |
+| `GET` | `/api/movimientos/reporte` | `fechaDesde` (yyyy-MM-dd), `fechaHasta` (yyyy-MM-dd), `prodId` | Reporte agrupado por día | `200 ReporteMovimientosDto` |
 | `POST` | `/api/movimientos` | — | Registrar movimiento | `201 MovimientoDto` |
 
 ### Códigos de error
 
 | Código | Situación |
 |---|---|
-| `400` | Validación fallida, stock insuficiente, bodega inválida para el tipo de movimiento |
+| `400` | Validación fallida, stock insuficiente, bodega inválida, cantidad fuera de rango (1–999 999), tipo Traslado en ajuste directo |
 | `404` | Recurso no encontrado (producto o bodega inexistentes) |
 | `409` | Código de producto duplicado |
 | `500` | Error interno del servidor (responde siempre en JSON) |

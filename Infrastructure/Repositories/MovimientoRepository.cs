@@ -50,10 +50,10 @@ public sealed class MovimientoRepository(AppDbContext db) : IMovimientoRepositor
         return movimiento;
     }
 
-    public async Task<ReporteMovimientosDto> GenerarReporteAsync(DateTime desde, DateTime hasta, int? prodId, CancellationToken ct = default)
+    public async Task<ReporteMovimientosDto> GenerarReporteAsync(DateOnly desde, DateOnly hasta, int? prodId, CancellationToken ct = default)
     {
-        var desdeUtc = DateTime.SpecifyKind(desde.Date, DateTimeKind.Utc);
-        var hastaUtc = DateTime.SpecifyKind(hasta.Date.AddDays(1), DateTimeKind.Utc);
+        var desdeUtc = desde.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var hastaUtc = hasta.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc).AddDays(1);
 
         var query = db.Movimientos
             .Where(x => x.MovFecha >= desdeUtc && x.MovFecha < hastaUtc);
@@ -77,8 +77,8 @@ public sealed class MovimientoRepository(AppDbContext db) : IMovimientoRepositor
             .ToList();
 
         return new ReporteMovimientosDto(
-            desde.Date,
-            hasta.Date,
+            desde,
+            hasta,
             prodId,
             detalle.Sum(d => d.Total),
             detalle.Sum(d => d.Entradas),

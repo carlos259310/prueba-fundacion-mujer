@@ -12,7 +12,14 @@ public static class InventarioEndpoints
             Results.Ok(await service.GetAllStockAsync(prodId, ct)))
         .WithTags("Inventario")
         .WithName("ListarTodoStock")
-        .WithSummary("Stock de todos los productos en todas las bodegas (prodId opcional para filtrar)");
+        .WithSummary("Stock de todos los productos en todas las bodegas")
+        .WithDescription("""
+            Devuelve el stock de todos los productos en todas las bodegas, ordenado por nombre de producto y bodega.
+
+            **Parámetro (query):**
+            - `prodId` — (Opcional) Filtrar por un producto específico
+            """)
+        .Produces<IEnumerable<InventarioDto>>(200);
 
         var group = app.MapGroup("/api/productos").WithTags("Inventario");
 
@@ -23,7 +30,15 @@ public static class InventarioEndpoints
             return Results.Ok(stock);
         })
         .WithName("ObtenerStockProducto")
-        .WithSummary("Ver stock del producto por bodega");
+        .WithSummary("Ver stock del producto en todas las bodegas")
+        .WithDescription("""
+            Devuelve el stock del producto en cada bodega donde tiene registros.
+
+            **Errores:** `400` si id ≤ 0 · `404` si el producto no existe.
+            """)
+        .Produces<IEnumerable<InventarioDto>>(200)
+        .Produces<object>(400)
+        .Produces<object>(404);
 
         group.MapPatch("/{id:int}/stock/{bodId:int}", async (
             int id,
@@ -44,6 +59,21 @@ public static class InventarioEndpoints
             return Results.Ok(resultado);
         })
         .WithName("AjustarStock")
-        .WithSummary("Ajuste directo de stock en una bodega (Entrada o Salida)");
+        .WithSummary("Ajuste directo de stock de un producto en una bodega")
+        .WithDescription("""
+            Registra un movimiento de ajuste y actualiza el stock del producto en la bodega indicada.
+
+            **Tipos permitidos:**
+            - `Entrada` → suma la cantidad al stock
+            - `Salida` → resta la cantidad del stock (falla con `400` si stock insuficiente)
+            - `Traslado` → **no permitido** en ajuste directo → `400`
+
+            **Cantidades:** enteros positivos sin decimales. Mínimo: 1, Máximo: 999 999.
+
+            **Errores:** `400` validación / stock insuficiente / tipo Traslado · `404` producto o bodega no existe.
+            """)
+        .Produces<InventarioDto>(200)
+        .Produces<object>(400)
+        .Produces<object>(404);
     }
 }

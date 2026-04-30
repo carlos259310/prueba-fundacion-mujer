@@ -12,7 +12,8 @@ public sealed class CreateMovimientoValidator : AbstractValidator<CreateMovimien
             .GreaterThan(0).WithMessage("El producto es requerido.");
 
         RuleFor(x => x.MovCantidad)
-            .GreaterThan(0).WithMessage("La cantidad debe ser mayor a cero.");
+            .GreaterThan(0).WithMessage("La cantidad debe ser mayor a cero.")
+            .LessThanOrEqualTo(999_999).WithMessage("La cantidad máxima es 999 999. Las cantidades son enteros sin decimales.");
 
         RuleFor(x => x.MovTipo)
             .IsInEnum().WithMessage("Tipo de movimiento no válido.");

@@ -21,7 +21,16 @@ public static class ProductoEndpoints
             return Results.Ok(result);
         })
         .WithName("ListarProductos")
-        .WithSummary("Listar productos con paginación");
+        .WithSummary("Listar productos con paginación y filtro opcional por marca")
+        .WithDescription("""
+            Devuelve el catálogo de productos paginado.
+
+            **Parámetros (query):**
+            - `page` — Número de página (default: 1)
+            - `pageSize` — Elementos por página (default: 10)
+            - `marca` — (Opcional) Texto libre para filtrar por marca
+            """)
+        .Produces<PagedResult<ProductoDto>>(200);
 
         group.MapGet("/{id:int}", async (int id, IProductoService service, CancellationToken ct) =>
         {
@@ -30,7 +39,11 @@ public static class ProductoEndpoints
             return Results.Ok(producto);
         })
         .WithName("ObtenerProducto")
-        .WithSummary("Obtener producto por ID");
+        .WithSummary("Obtener producto por ID")
+        .WithDescription("Errores: `400` si id ≤ 0 · `404` si el producto no existe.")
+        .Produces<ProductoDto>(200)
+        .Produces<object>(400)
+        .Produces<object>(404);
 
         group.MapPost("/", async (
             CreateProductoDto dto,
@@ -46,7 +59,11 @@ public static class ProductoEndpoints
             return Results.Created($"/api/productos/{creado.ProdId}", creado);
         })
         .WithName("CrearProducto")
-        .WithSummary("Crear producto");
+        .WithSummary("Crear un nuevo producto en el catálogo")
+        .WithDescription("`prodNombre` y `prodCodigo` son requeridos. El código (SKU) debe ser único → `409 Conflict` si ya existe.")
+        .Produces<ProductoDto>(201)
+        .Produces<object>(400)
+        .Produces<object>(409);
 
         group.MapPut("/{id:int}", async (
             int id,
@@ -64,7 +81,12 @@ public static class ProductoEndpoints
             return Results.Ok(actualizado);
         })
         .WithName("ActualizarProducto")
-        .WithSummary("Actualizar producto");
+        .WithSummary("Actualizar un producto existente")
+        .WithDescription("Código SKU debe ser único → `409 Conflict` si ya pertenece a otro producto. Errores: `400` validación · `404` no existe · `409` código duplicado.")
+        .Produces<ProductoDto>(200)
+        .Produces<object>(400)
+        .Produces<object>(404)
+        .Produces<object>(409);
 
         group.MapDelete("/{id:int}", async (int id, IProductoService service, CancellationToken ct) =>
         {
@@ -73,6 +95,10 @@ public static class ProductoEndpoints
             return Results.NoContent();
         })
         .WithName("EliminarProducto")
-        .WithSummary("Eliminar producto");
+        .WithSummary("Eliminar un producto del catálogo")
+        .WithDescription("Elimina el producto y en cascada su stock e historial de movimientos. Errores: `400` si id ≤ 0 · `404` si no existe.")
+        .Produces(204)
+        .Produces<object>(400)
+        .Produces<object>(404);
     }
 }

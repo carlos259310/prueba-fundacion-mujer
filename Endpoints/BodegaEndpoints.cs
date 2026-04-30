@@ -16,7 +16,9 @@ public static class BodegaEndpoints
             return Results.Ok(result);
         })
         .WithName("ListarBodegas")
-        .WithSummary("Listar todas las bodegas");
+        .WithSummary("Listar todas las bodegas")
+        .WithDescription("Devuelve todas las bodegas registradas en el sistema.")
+        .Produces<IEnumerable<BodegaDto>>(200);
 
         group.MapGet("/{id:int}", async (int id, IBodegaService service, CancellationToken ct) =>
         {
@@ -25,7 +27,11 @@ public static class BodegaEndpoints
             return Results.Ok(bodega);
         })
         .WithName("ObtenerBodega")
-        .WithSummary("Obtener bodega por ID");
+        .WithSummary("Obtener bodega por ID")
+        .WithDescription("Errores: `400` si id ≤ 0 · `404` si la bodega no existe.")
+        .Produces<BodegaDto>(200)
+        .Produces<object>(400)
+        .Produces<object>(404);
 
         group.MapPost("/", async (
             CreateBodegaDto dto,
@@ -41,7 +47,10 @@ public static class BodegaEndpoints
             return Results.Created($"/api/bodegas/{creada.BodId}", creada);
         })
         .WithName("CrearBodega")
-        .WithSummary("Crear bodega");
+        .WithSummary("Crear una nueva bodega")
+        .WithDescription("`bodNombre` requerido (máx. 100 caracteres). `bodPrincipal` indica si es la bodega principal del negocio.")
+        .Produces<BodegaDto>(201)
+        .Produces<object>(400);
 
         group.MapPut("/{id:int}", async (
             int id,
@@ -59,7 +68,11 @@ public static class BodegaEndpoints
             return Results.Ok(actualizada);
         })
         .WithName("ActualizarBodega")
-        .WithSummary("Actualizar bodega");
+        .WithSummary("Actualizar una bodega existente")
+        .WithDescription("Errores: `400` validación de campos · `404` bodega no existe.")
+        .Produces<BodegaDto>(200)
+        .Produces<object>(400)
+        .Produces<object>(404);
 
         group.MapDelete("/{id:int}", async (int id, IBodegaService service, CancellationToken ct) =>
         {
@@ -68,6 +81,10 @@ public static class BodegaEndpoints
             return Results.NoContent();
         })
         .WithName("EliminarBodega")
-        .WithSummary("Eliminar bodega");
+        .WithSummary("Eliminar una bodega")
+        .WithDescription("Errores: `400` si id ≤ 0 · `404` si la bodega no existe.")
+        .Produces(204)
+        .Produces<object>(400)
+        .Produces<object>(404);
     }
 }

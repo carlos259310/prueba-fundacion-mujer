@@ -293,7 +293,7 @@
             </div>
             <div class="decision-row">
               <span class="decision-label">Documentación</span>
-              <span class="text-muted">Swashbuckle Swagger con enums en string y grupos por módulo</span>
+              <span class="text-muted">Swashbuckle Swagger — descripciones detalladas, códigos de respuesta, schemas de DTOs con descripción por campo, fechas en formato <code>yyyy-MM-dd</code>, enums en string</span>
             </div>
             <div class="decision-row">
               <span class="decision-label">Deploy</span>
@@ -336,7 +336,7 @@
             </div>
             <div class="check-row">
               <i class="bi bi-check-circle-fill"></i>
-              <div><strong>Swagger organizado</strong> — grupos con descripción, enums en string, CSS personalizado</div>
+              <div><strong>Swagger detallado</strong> — descripciones por endpoint, códigos de respuesta (<code>200/201/204/400/404/409</code>), campos de DTOs documentados, fechas en formato <code>yyyy-MM-dd</code>, cantidades enteras sin decimales (1–999 999)</div>
             </div>
             <div class="check-row">
               <i class="bi bi-check-circle-fill"></i>
@@ -387,7 +387,7 @@
               <div class="fw-semibold small text-muted mb-2">Movimientos</div>
               <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos</span><span class="ep-desc ms-1">?prodId= &page= &pageSize=</span></div>
               <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos/{prodId}</span></div>
-              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos/reporte</span><span class="ep-desc ms-1">?fechaDesde= &fechaHasta=</span></div>
+              <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/movimientos/reporte</span><span class="ep-desc ms-1">?fechaDesde=yyyy-MM-dd &fechaHasta=yyyy-MM-dd &prodId=</span></div>
               <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/movimientos</span></div>
             </div>
           </div>
@@ -437,7 +437,7 @@
   │ prod_id           INT  FK → productos   │
   │ mov_bodega_inicial INT  NULL            │ ← origen  (Salida / Traslado)
   │ mov_bodega_final   INT  NULL            │ ← destino (Entrada / Traslado)
-  │ mov_cantidad      INT  NOT NULL         │
+  │ mov_cantidad      INT  NOT NULL (1–999 999) │
   │ mov_tipo          TEXT (Entrada|Salida|Traslado)
   │ mov_concepto      TEXT (Compra|Venta|Ajuste|Traslado|Devolucion)
   │ mov_fecha         TIMESTAMPTZ NOT NULL  │
@@ -495,7 +495,7 @@
                 <tr><td><code>prod_id</code></td><td>integer</td><td><span class="badge-fk">FK</span></td></tr>
                 <tr><td><code>mov_bodega_inicial</code></td><td>integer</td><td><span class="badge-null">NULL</span></td></tr>
                 <tr><td><code>mov_bodega_final</code></td><td>integer</td><td><span class="badge-null">NULL</span></td></tr>
-                <tr><td><code>mov_cantidad</code></td><td>integer</td><td>NOT NULL</td></tr>
+                <tr><td><code>mov_cantidad</code></td><td>integer</td><td>NOT NULL · 1–999 999</td></tr>
                 <tr><td><code>mov_tipo</code></td><td>text</td><td>enum</td></tr>
                 <tr><td><code>mov_concepto</code></td><td>text</td><td>enum</td></tr>
                 <tr><td><code>mov_fecha</code></td><td>timestamptz</td><td>NOT NULL</td></tr>
@@ -893,6 +893,10 @@
             <div class="rule-row">
               <div class="rule-num">6</div>
               <div><strong>Eliminación en cascada</strong> — Borrar un producto elimina su inventario y movimientos. Borrar una bodega elimina el inventario de esa bodega. Todo via EF Core Cascade.</div>
+            </div>
+            <div class="rule-row">
+              <div class="rule-num">7</div>
+              <div><strong>Cantidades enteras sin decimales</strong> — El campo <code>mov_cantidad</code> es <code>integer</code>. Se valida mínimo 1 y máximo 999 999. El body JSON rechaza valores con decimales automáticamente.</div>
             </div>
           </div>
         </div>
