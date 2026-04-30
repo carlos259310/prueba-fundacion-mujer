@@ -10,6 +10,16 @@ public static class MovimientoEndpoints
     {
         var group = app.MapGroup("/api/movimientos").WithTags("Movimientos");
 
+        group.MapGet("/", async (
+            IMovimientoService service,
+            int? prodId = null,
+            int page = 1,
+            int pageSize = 10,
+            CancellationToken ct = default) =>
+            Results.Ok(await service.GetAllAsync(prodId, page, pageSize, ct)))
+        .WithName("ListarMovimientos")
+        .WithSummary("Historial de movimientos paginado (prodId opcional para filtrar por producto)");
+
         group.MapGet("/reporte", async (
             DateTime fechaDesde,
             DateTime fechaHasta,

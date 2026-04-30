@@ -2,7 +2,10 @@
 let prodIdActual = null;
 
 /* ─── Init ────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', cargarProductos);
+document.addEventListener('DOMContentLoaded', async () => {
+  await cargarProductos();
+  cargarTodoStock();
+});
 
 async function cargarProductos() {
   try {
@@ -20,22 +23,12 @@ async function cargarProductos() {
 }
 
 /* ─── Carga de stock ──────────────────────────────────── */
-async function cargarStock() {
-  const sel = document.getElementById('selectProducto');
-  const id  = sel.value;
-  if (!id) {
-    document.getElementById('tablaBody').innerHTML = `
-      <tr><td colspan="3" class="text-center py-5 text-muted">
-        <i class="bi bi-arrow-up-circle fs-3 d-block mb-2"></i>
-        Selecciona un producto para ver su stock
-      </td></tr>`;
-    prodIdActual = null;
-    return;
-  }
-  prodIdActual = parseInt(id);
+async function cargarTodoStock(prodId = null) {
+  prodIdActual = prodId;
   setTablaLoading();
   try {
-    const res = await fetch(`/api/productos/${id}/stock`);
+    const url = prodId ? `/api/inventario?prodId=${prodId}` : '/api/inventario';
+    const res = await fetch(url);
     if (!res.ok) throw new Error();
     const items = await res.json();
     renderTabla(items);
@@ -44,30 +37,37 @@ async function cargarStock() {
   }
 }
 
+function filtrarStock() {
+  const val = document.getElementById('selectProducto').value;
+  cargarTodoStock(val || null);
+}
+
 function recargar() {
-  cargarStock();
+  const val = document.getElementById('selectProducto').value;
+  cargarTodoStock(val || null);
 }
 
 function renderTabla(items) {
   const tbody = document.getElementById('tablaBody');
   if (!items.length) {
     tbody.innerHTML = `
-      <tr><td colspan="3" class="text-center py-5 text-muted">
+      <tr><td colspan="4" class="text-center py-5 text-muted">
         <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-        Sin stock registrado para este producto
+        Sin stock registrado
       </td></tr>`;
     return;
   }
   tbody.innerHTML = items.map(inv => `
     <tr>
-      <td class="ps-4 fw-semibold">${esc(inv.bodNombre)}</td>
+      <td class="ps-4 fw-semibold">${esc(inv.prodNombre)}</td>
+      <td class="text-muted">${esc(inv.bodNombre)}</td>
       <td>
         <span class="fw-bold fs-5 ${inv.invStock === 0 ? 'text-danger' : 'text-brand'}">${inv.invStock}</span>
-        <span class="text-muted small ms-1">unidades</span>
+        <span class="text-muted small ms-1">uds</span>
       </td>
       <td class="text-end pe-4">
         <button class="btn btn-sm btn-outline-secondary"
-          onclick="abrirAjuste(${inv.prodId}, ${inv.bodId}, '${esc(inv.bodNombre).replace(/'/g, "\\'")}')">
+          onclick="abrirAjuste(${inv.prodId}, ${inv.bodId}, '${esc(inv.prodNombre).replace(/'/g, "\\'")}', '${esc(inv.bodNombre).replace(/'/g, "\\'")}')">
           <i class="bi bi-sliders me-1"></i>Ajustar
         </button>
       </td>
@@ -75,12 +75,9 @@ function renderTabla(items) {
 }
 
 /* ─── Modal Ajuste ────────────────────────────────────── */
-function abrirAjuste(prodId, bodId, bodNombre) {
+function abrirAjuste(prodId, bodId, prodNombre, bodNombre) {
   document.getElementById('ajusteProdId').value = prodId;
   document.getElementById('ajusteBodId').value  = bodId;
-
-  const sel = document.getElementById('selectProducto');
-  const prodNombre = sel.options[sel.selectedIndex]?.text ?? '';
   document.getElementById('ajusteInfo').textContent = `${prodNombre} — ${bodNombre}`;
 
   ['ajusteTipo', 'ajusteConcepto', 'ajusteCantidad'].forEach(id => {
@@ -119,7 +116,7 @@ async function guardarAjuste() {
 
   if (res.ok) {
     getModal('modalAjuste').hide();
-    cargarStock();
+    recargar();
     toast('Stock ajustado correctamente', 'success');
   } else {
     const err = await res.json().catch(() => ({}));
@@ -140,12 +137,12 @@ function getModal(id) {
 
 function setTablaLoading() {
   document.getElementById('tablaBody').innerHTML =
-    '<tr><td colspan="3" class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Cargando...</td></tr>';
+    '<tr><td colspan="4" class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Cargando...</td></tr>';
 }
 
 function setTablaError() {
   document.getElementById('tablaBody').innerHTML =
-    '<tr><td colspan="3" class="text-center py-5 text-danger"><i class="bi bi-exclamation-circle me-2"></i>Error al cargar el inventario</td></tr>';
+    '<tr><td colspan="4" class="text-center py-5 text-danger"><i class="bi bi-exclamation-circle me-2"></i>Error al cargar el inventario</td></tr>';
 }
 
 function toast(msg, tipo = 'success') {

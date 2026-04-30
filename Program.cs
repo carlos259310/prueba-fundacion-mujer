@@ -125,6 +125,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
 
     if (args.Contains("--reset") || args.Contains("--reset-seed"))
     {

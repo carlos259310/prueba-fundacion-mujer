@@ -10,6 +10,9 @@ public sealed class InventarioService(
     IProductoRepository prodRepo,
     IBodegaRepository bodRepo) : IInventarioService
 {
+    public Task<IEnumerable<InventarioDto>> GetAllStockAsync(int? prodId, CancellationToken ct = default)
+        => invRepo.GetAllStockAsync(prodId, ct);
+
     public async Task<IEnumerable<InventarioDto>> GetStockByProductoAsync(int prodId, CancellationToken ct = default)
     {
         _ = await prodRepo.GetByIdAsync(prodId, ct)

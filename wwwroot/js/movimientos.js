@@ -6,6 +6,7 @@ let bodegaMap = {};   // bodId → bodNombre
 /* ─── Init ────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', async () => {
   await Promise.allSettled([cargarProductosEnSelects(), cargarBodegas()]);
+  fetchHistorial(null, 1);
 });
 
 async function cargarProductosEnSelects() {
@@ -56,27 +57,20 @@ function cambiarTab(tab, el) {
 /* ─── Historial ───────────────────────────────────────── */
 async function cargarHistorial() {
   histPagina = 1;
-  await fetchHistorial(document.getElementById('histProducto').value, 1);
+  const prodId = document.getElementById('histProducto').value || null;
+  await fetchHistorial(prodId ? parseInt(prodId) : null, 1);
 }
 
 async function fetchHistorial(prodId, pagina) {
   const tbody = document.getElementById('tablaHistorial');
-  if (!prodId) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">
-      <i class="bi bi-clock-history fs-3 d-block mb-2"></i>
-      Selecciona un producto para ver el historial
-    </td></tr>`;
-    document.getElementById('histInfo').textContent = '';
-    document.getElementById('histPaginacion').innerHTML = '';
-    return;
-  }
-
   tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">
     <div class="spinner-border spinner-border-sm me-2"></div>Cargando...
   </td></tr>`;
 
   try {
-    const res = await fetch(`/api/movimientos/${prodId}?page=${pagina}&pageSize=${HIST_PAGE_SIZE}`);
+    const params = new URLSearchParams({ page: pagina, pageSize: HIST_PAGE_SIZE });
+    if (prodId) params.append('prodId', prodId);
+    const res = await fetch(`/api/movimientos?${params}`);
     if (!res.ok) throw new Error();
     const data = await res.json();
     renderHistorial(data.items ?? [], data.total, data.page, data.pageSize, prodId);
@@ -91,7 +85,7 @@ function renderHistorial(items, total, page, pageSize, prodId) {
   const tbody = document.getElementById('tablaHistorial');
   if (!items.length) {
     tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">
-      <i class="bi bi-inbox fs-3 d-block mb-2"></i>Sin movimientos registrados para este producto
+      <i class="bi bi-inbox fs-3 d-block mb-2"></i>Sin movimientos registrados
     </td></tr>`;
     document.getElementById('histInfo').textContent = '';
     document.getElementById('histPaginacion').innerHTML = '';
@@ -134,13 +128,13 @@ function renderHistPaginacion(total, page, pageSize, prodId) {
   if (totalPags <= 1) { ul.innerHTML = ''; return; }
 
   let html = `<li class="page-item ${page <= 1 ? 'disabled' : ''}">
-    <a class="page-link" href="#" onclick="irHistPagina(${page - 1}, '${prodId}'); return false;">‹</a></li>`;
+    <a class="page-link" href="javascript:void(0)" onclick="irHistPagina(${page - 1}, ${prodId ?? 'null'})">‹</a></li>`;
   for (let i = 1; i <= totalPags; i++) {
     html += `<li class="page-item ${i === page ? 'active' : ''}">
-      <a class="page-link" href="#" onclick="irHistPagina(${i}, '${prodId}'); return false;">${i}</a></li>`;
+      <a class="page-link" href="javascript:void(0)" onclick="irHistPagina(${i}, ${prodId ?? 'null'})">${i}</a></li>`;
   }
   html += `<li class="page-item ${page >= totalPags ? 'disabled' : ''}">
-    <a class="page-link" href="#" onclick="irHistPagina(${page + 1}, '${prodId}'); return false;">›</a></li>`;
+    <a class="page-link" href="javascript:void(0)" onclick="irHistPagina(${page + 1}, ${prodId ?? 'null'})">›</a></li>`;
   ul.innerHTML = html;
 }
 
@@ -190,6 +184,7 @@ function renderReporte(data) {
   document.getElementById('repEntradas').textContent    = data.totalEntradas;
   document.getElementById('repSalidas').textContent     = data.totalSalidas;
   document.getElementById('repTrasladados').textContent = data.totalTrasladados;
+  document.getElementById('repResumen').classList.remove('d-none');
 
   if (!data.detalle?.length) {
     document.getElementById('repVacio').classList.remove('d-none');
@@ -204,8 +199,6 @@ function renderReporte(data) {
       <td class="text-center" style="color:#7e22ce"><strong>${d.traslados}</strong></td>
       <td class="text-end pe-4 fw-semibold">${d.total}</td>
     </tr>`).join('');
-
-  document.getElementById('repResumen').classList.remove('d-none');
 }
 
 /* ─── Modal Registrar ─────────────────────────────────── */
@@ -276,7 +269,7 @@ async function registrarMovimiento() {
   if (res.ok) {
     getModal('modalMovimiento').hide();
     const histProd = document.getElementById('histProducto').value;
-    if (histProd && histProd === prodId) fetchHistorial(prodId, 1);
+    fetchHistorial(histProd ? parseInt(histProd) : null, 1);
     toast('Movimiento registrado correctamente', 'success');
   } else {
     const err = await res.json().catch(() => ({}));

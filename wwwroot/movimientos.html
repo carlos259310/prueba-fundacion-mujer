@@ -43,12 +43,12 @@
     <!-- TABS -->
     <ul class="nav nav-tabs mb-4" id="tabsMov">
       <li class="nav-item">
-        <a class="nav-link active" href="#" onclick="cambiarTab('historial', this)">
+        <a class="nav-link active" href="javascript:void(0)" onclick="return cambiarTab('historial', this)">
           <i class="bi bi-clock-history me-1"></i>Historial
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#" onclick="cambiarTab('reporte', this)">
+        <a class="nav-link" href="javascript:void(0)" onclick="return cambiarTab('reporte', this)">
           <i class="bi bi-bar-chart me-1"></i>Reporte
         </a>
       </li>
@@ -60,7 +60,7 @@
         <div class="card-body py-3">
           <div class="row g-2 align-items-end">
             <div class="col-12 col-md-5">
-              <label class="form-label small fw-medium mb-1">Producto</label>
+              <label class="form-label small fw-medium mb-1">Filtrar por producto</label>
               <select class="form-select" id="histProducto" onchange="cargarHistorial()">
                 <option value="">— Todos los productos —</option>
               </select>
@@ -86,8 +86,7 @@
               </thead>
               <tbody id="tablaHistorial">
                 <tr><td colspan="7" class="text-center py-5 text-muted">
-                  <i class="bi bi-clock-history fs-3 d-block mb-2"></i>
-                  Selecciona un producto para ver el historial
+                  <div class="spinner-border spinner-border-sm me-2"></div>Cargando...
                 </td></tr>
               </tbody>
             </table>

@@ -7,6 +7,19 @@ namespace ProductCatalog.Api.Infrastructure.Repositories;
 
 public sealed class InventarioRepository(AppDbContext db) : IInventarioRepository
 {
+    public async Task<IEnumerable<InventarioDto>> GetAllStockAsync(int? prodId, CancellationToken ct = default)
+    {
+        var q = db.Inventarios
+            .Include(x => x.Producto)
+            .Include(x => x.Bodega)
+            .AsQueryable();
+        if (prodId.HasValue) q = q.Where(x => x.ProdId == prodId.Value);
+        return await q
+            .OrderBy(x => x.Producto.ProdNombre).ThenBy(x => x.Bodega.BodNombre)
+            .Select(x => new InventarioDto(x.ProdId, x.Producto.ProdNombre, x.BodId, x.Bodega.BodNombre, x.InvStock, x.InvLastUpdate))
+            .ToListAsync(ct);
+    }
+
     public async Task<IEnumerable<InventarioDto>> GetStockByProductoAsync(int prodId, CancellationToken ct = default) =>
         await db.Inventarios
             .Include(x => x.Producto)

@@ -30,5 +30,10 @@ public sealed class ExceptionMiddleware(RequestDelegate next)
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
         }
+        catch (Exception)
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            await context.Response.WriteAsJsonAsync(new { error = "Error interno del servidor." });
+        }
     }
 }

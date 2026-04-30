@@ -11,6 +11,9 @@ public sealed class MovimientoService(
     IProductoRepository prodRepo,
     IBodegaRepository bodRepo) : IMovimientoService
 {
+    public Task<PagedResult<MovimientoDto>> GetAllAsync(int? prodId, int page, int pageSize, CancellationToken ct = default)
+        => movRepo.GetAllAsync(prodId, page, pageSize, ct);
+
     public async Task<PagedResult<MovimientoDto>> GetByProductoAsync(int prodId, int page, int pageSize, CancellationToken ct = default)
     {
         _ = await prodRepo.GetByIdAsync(prodId, ct)

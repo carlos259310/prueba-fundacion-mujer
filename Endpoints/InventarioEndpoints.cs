@@ -8,6 +8,12 @@ public static class InventarioEndpoints
 {
     public static void MapInventarioEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/inventario", async (IInventarioService service, int? prodId, CancellationToken ct) =>
+            Results.Ok(await service.GetAllStockAsync(prodId, ct)))
+        .WithTags("Inventario")
+        .WithName("ListarTodoStock")
+        .WithSummary("Stock de todos los productos en todas las bodegas (prodId opcional para filtrar)");
+
         var group = app.MapGroup("/api/productos").WithTags("Inventario");
 
         group.MapGet("/{id:int}/stock", async (int id, IInventarioService service, CancellationToken ct) =>
