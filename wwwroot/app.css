@@ -1,0 +1,120 @@
+:root {
+  --brand:       #6b21a8;
+  --brand-dark:  #4c1572;
+  --brand-hover: #7e22ce;
+  --brand-light: #f3e8ff;
+  --brand-mid:   #d8b4fe;
+}
+
+/* ─── Layout ─────────────────────────────────── */
+body {
+  background: #faf7ff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #1e1b2e;
+}
+main { flex: 1; }
+
+/* ─── Navbar ─────────────────────────────────── */
+.navbar-brand { font-size: 1.1rem; letter-spacing: 0.02em; }
+.bg-brand     { background-color: var(--brand) !important; }
+.navbar-dark .navbar-nav .nav-link          { color: rgba(255,255,255,.75); }
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active   { color: #fff; }
+.navbar-dark .navbar-nav .nav-link.active   { font-weight: 600; }
+
+/* ─── Botones ────────────────────────────────── */
+.btn-brand {
+  background-color: var(--brand);
+  color: #fff;
+  border: none;
+}
+.btn-brand:hover, .btn-brand:focus {
+  background-color: var(--brand-hover);
+  color: #fff;
+}
+
+/* ─── Texto brand ────────────────────────────── */
+.text-brand { color: var(--brand) !important; }
+
+/* ─── Tabla ──────────────────────────────────── */
+.table-brand th {
+  background-color: var(--brand-light);
+  color: var(--brand);
+  font-weight: 600;
+  border-bottom: 2px solid var(--brand-mid);
+  white-space: nowrap;
+}
+.table-hover tbody tr:hover { background-color: #fdf4ff; }
+
+/* ─── Cards ──────────────────────────────────── */
+.card { border-radius: 12px; }
+.card-module {
+  border: 1.5px solid var(--brand-mid);
+  transition: transform .15s, box-shadow .15s;
+  cursor: pointer;
+  border-radius: 12px;
+}
+.card-module:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(107,33,168,.15);
+}
+.card-module .icon-wrap {
+  width: 48px; height: 48px;
+  background: var(--brand-light);
+  color: var(--brand);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+}
+
+/* ─── Badge código ───────────────────────────── */
+.badge-code {
+  background: var(--brand-light);
+  color: var(--brand);
+  font-weight: 600;
+  font-size: .78rem;
+  padding: .25em .55em;
+  border-radius: 6px;
+  font-family: monospace;
+}
+
+/* ─── Paginación ─────────────────────────────── */
+.pagination .page-link         { color: var(--brand); cursor: pointer; }
+.pagination .page-link:hover   { color: var(--brand-hover); background: var(--brand-light); }
+.pagination .page-item.active .page-link {
+  background-color: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+/* ─── Modal header ───────────────────────────── */
+.modal-header.brand {
+  background-color: var(--brand);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+}
+.modal-header.brand .btn-close { filter: invert(1); }
+
+/* ─── Footer ─────────────────────────────────── */
+.site-footer {
+  background-color: var(--brand-dark);
+  color: rgba(255,255,255,.7);
+  padding: .9rem 0;
+  font-size: .85rem;
+  margin-top: auto;
+}
+.site-footer a { color: rgba(255,255,255,.9); text-decoration: none; }
+.site-footer a:hover { color: #fff; }
+
+/* ─── Dashboard stat ─────────────────────────── */
+.stat-chip {
+  background: var(--brand-light);
+  color: var(--brand);
+  border-radius: 20px;
+  padding: .2rem .75rem;
+  font-size: .8rem;
+  font-weight: 600;
+}

@@ -22,6 +22,10 @@ builder.Services.AddSwaggerGen(c =>
         Title = "ProductCatalog API",
         Version = "v1",
         Description = """
+            > 🖥️ **[← Ir a la interfaz visual](/)** &nbsp;·&nbsp; [Bodegas](/bodegas.html) &nbsp;·&nbsp; [Productos](/productos.html) &nbsp;·&nbsp; [Inventario](/inventario.html) &nbsp;·&nbsp; [Movimientos](/movimientos.html)
+
+            ---
+
             API REST para gestión de catálogo de productos e inventario por bodega.
 
             ---
@@ -140,6 +144,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseSwagger();
@@ -149,9 +154,8 @@ app.UseSwaggerUI(c =>
     c.DocumentTitle = "ProductCatalog API";
     c.DefaultModelsExpandDepth(-1);
     c.InjectStylesheet("/swagger-custom.css");
+    c.InjectJavascript("/swagger-custom.js");
 });
-
-app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 app.MapBodegaEndpoints();
 app.MapProductoEndpoints();
