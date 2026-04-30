@@ -21,10 +21,30 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "ProductCatalog API",
         Version = "v1",
-        Description = "API de gestión de productos e inventario por bodega."
+        Description = """
+            API REST para gestión de catálogo de productos e inventario por bodega.
+
+            ## Flujo de uso recomendado
+            1. Crear una **Bodega** (`POST /api/bodegas`)
+            2. Crear un **Producto** (`POST /api/productos`)
+            3. Registrar una **Entrada** de stock (`POST /api/movimientos`)
+            4. Consultar el **stock** por bodega (`GET /api/productos/{id}/stock`)
+            5. Registrar **Salidas** o **Traslados** según necesidad
+
+            ## Reglas de negocio
+            - El stock **nunca puede ser negativo** → `400 Bad Request`
+            - El código de producto debe ser **único** → `409 Conflict`
+            - Los traslados requieren bodega origen y destino distintas
+
+            ## Enums disponibles
+            **TipoMovimiento:** `Entrada` · `Salida` · `Traslado`
+
+            **ConceptoMovimiento:** `Compra` · `Venta` · `Ajuste` · `Traslado` · `Devolucion`
+            """
     });
     c.UseInlineDefinitionsForEnums();
     c.SchemaFilter<EnumSchemaFilter>();
+    c.TagActionsBy(api => api.GroupName != null ? [api.GroupName] : api.ActionDescriptor.RouteValues.ContainsKey("controller") ? [api.ActionDescriptor.RouteValues["controller"]] : ["General"]);
 });
 
 builder.Services.ConfigureHttpJsonOptions(o =>
@@ -75,6 +95,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors();
+app.UseStaticFiles();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -82,6 +103,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProductCatalog API v1");
     c.DocumentTitle = "ProductCatalog API";
     c.DefaultModelsExpandDepth(-1);
+    c.InjectStylesheet("/swagger-custom.css");
 });
 
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();

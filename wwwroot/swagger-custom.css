@@ -1,0 +1,31 @@
+/* Oculta la sección de Schemas al fondo */
+.swagger-ui .models { display: none; }
+
+/* Barra superior */
+.swagger-ui .topbar { background-color: #1b1b2f; padding: 8px 0; }
+.swagger-ui .topbar-wrapper img { display: none; }
+.swagger-ui .topbar-wrapper::before {
+    content: "ProductCatalog API";
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding-left: 20px;
+}
+
+/* Título e info */
+.swagger-ui .info { margin: 20px 0; }
+.swagger-ui .info .title { color: #1b1b2f; }
+
+/* Colores por método HTTP */
+.swagger-ui .opblock.opblock-get    { border-color: #2196f3; background: rgba(33,150,243,0.05); }
+.swagger-ui .opblock.opblock-post   { border-color: #4caf50; background: rgba(76,175,80,0.05); }
+.swagger-ui .opblock.opblock-put    { border-color: #ff9800; background: rgba(255,152,0,0.05); }
+.swagger-ui .opblock.opblock-delete { border-color: #f44336; background: rgba(244,67,54,0.05); }
+.swagger-ui .opblock.opblock-patch  { border-color: #9c27b0; background: rgba(156,39,176,0.05); }
+
+/* Tags más visibles */
+.swagger-ui .opblock-tag {
+    font-size: 1.1rem;
+    border-bottom: 2px solid #1b1b2f;
+    margin-top: 16px;
+}
