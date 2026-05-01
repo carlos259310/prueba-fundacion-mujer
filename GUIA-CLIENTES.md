@@ -1,33 +1,41 @@
-# Guía: Agregar el módulo de Clientes al proyecto
+# Guía de Clientes — dos temas en uno
 
-Sigue estos pasos en orden. Cada uno te explica qué hace y por qué,
-para que entiendas cómo fluye el proyecto.
+Este archivo cubre dos cosas distintas que comparten la palabra "cliente":
 
----
+| Sección | Qué es |
+|---|---|
+| **A — Módulo de Clientes** | Agregar el CRUD de personas (clientes del negocio) al código |
+| **B — Nueva instancia por empresa** | Desplegar una copia del sistema para otra empresa |
 
-## Arquitectura que vas a seguir
-
-```
-Domain/Entities/          ← define qué ES un Cliente (solo propiedades)
-Application/DTOs/         ← define qué datos entran y salen por la API
-Application/Interfaces/   ← define QUÉ se puede hacer (contrato)
-Application/Validators/   ← define las reglas de validación
-Application/Services/     ← implementa la lógica de negocio
-Infrastructure/Repositories/ ← habla con la base de datos
-Infrastructure/AppDbContext  ← registra la tabla en EF Core
-Endpoints/                ← expone los endpoints HTTP
-Program.cs                ← registra todo en el contenedor de dependencias
-wwwroot/                  ← frontend (HTML + JS)
-```
-
-Cada módulo nuevo sigue exactamente este mismo flujo. Una vez lo hagas
-con Clientes, sabrás hacerlo con cualquier otra entidad.
+Empieza por la sección que necesitas ahora.
 
 ---
 
-## PASO 1 — Entidad de dominio
+# SECCIÓN A — Módulo de Clientes (código)
 
-**Archivo a CREAR:** `Domain/Entities/Cliente.cs`
+Agrega al proyecto la entidad `Cliente` con su CRUD completo siguiendo
+la misma arquitectura que ya tiene el proyecto (Domain → Application → Infrastructure → Endpoints).
+
+## Arquitectura
+
+```
+Domain/Entities/             ← qué ES un Cliente
+Application/DTOs/            ← qué entra y sale por la API
+Application/Interfaces/      ← contrato (qué se puede hacer)
+Application/Validators/      ← reglas de validación
+Application/Services/        ← lógica de negocio
+Infrastructure/Repositories/ ← acceso a la base de datos
+Infrastructure/AppDbContext   ← registrar la tabla en EF Core
+Endpoints/                   ← endpoints HTTP
+Program.cs                   ← registrar todo en DI
+wwwroot/                     ← frontend HTML + JS
+```
+
+---
+
+## PASO A-1 — Entidad de dominio
+
+**CREAR:** `Domain/Entities/Cliente.cs`
 
 ```csharp
 namespace ProductCatalog.Api.Domain.Entities;
@@ -43,14 +51,13 @@ public sealed class Cliente
 }
 ```
 
-> La entidad es la representación pura del objeto. Sin lógica, sin anotaciones de API.
 > Los campos con `?` son opcionales (pueden ser null en la BD).
 
 ---
 
-## PASO 2 — DTOs (lo que entra y sale por la API)
+## PASO A-2 — DTOs
 
-**Archivo a CREAR:** `Application/DTOs/ClienteDtos.cs`
+**CREAR:** `Application/DTOs/ClienteDtos.cs`
 
 ```csharp
 using System.ComponentModel;
@@ -99,15 +106,15 @@ public sealed record UpdateClienteDto(
 );
 ```
 
-> `ClienteDto` es lo que devuelve la API (incluye el ID).
-> `CreateClienteDto` es lo que recibe al crear (sin ID, lo genera la BD).
-> `UpdateClienteDto` es lo que recibe al actualizar.
+> `ClienteDto` → lo que devuelve la API (incluye el ID).
+> `CreateClienteDto` → lo que recibe al crear (sin ID, lo genera la BD).
+> `UpdateClienteDto` → lo que recibe al actualizar.
 
 ---
 
-## PASO 3 — Interfaz del repositorio (contrato de BD)
+## PASO A-3 — Interfaz del repositorio
 
-**Archivo a CREAR:** `Application/Interfaces/IClienteRepository.cs`
+**CREAR:** `Application/Interfaces/IClienteRepository.cs`
 
 ```csharp
 using ProductCatalog.Api.Domain.Entities;
@@ -124,14 +131,11 @@ public interface IClienteRepository
 }
 ```
 
-> La interfaz define QUÉ operaciones existen, sin decir CÓMO se hacen.
-> El servicio solo conoce esta interfaz, nunca la implementación concreta.
-
 ---
 
-## PASO 4 — Interfaz del servicio (contrato de lógica)
+## PASO A-4 — Interfaz del servicio
 
-**Archivo a CREAR:** `Application/Interfaces/IClienteService.cs`
+**CREAR:** `Application/Interfaces/IClienteService.cs`
 
 ```csharp
 using ProductCatalog.Api.Application.DTOs;
@@ -150,9 +154,9 @@ public interface IClienteService
 
 ---
 
-## PASO 5 — Validadores
+## PASO A-5 — Validadores
 
-**Archivo a CREAR:** `Application/Validators/ClienteValidators.cs`
+**CREAR:** `Application/Validators/ClienteValidators.cs`
 
 ```csharp
 using FluentValidation;
@@ -217,9 +221,9 @@ public sealed class UpdateClienteValidator : AbstractValidator<UpdateClienteDto>
 
 ---
 
-## PASO 6 — Servicio (lógica de negocio)
+## PASO A-6 — Servicio
 
-**Archivo a CREAR:** `Application/Services/ClienteService.cs`
+**CREAR:** `Application/Services/ClienteService.cs`
 
 ```csharp
 using ProductCatalog.Api.Application.DTOs;
@@ -254,7 +258,6 @@ public sealed class ClienteService(IClienteRepository repo) : IClienteService
             CliCelular   = dto.CliCelular,
             CliDireccion = dto.CliDireccion
         };
-
         var creado = await repo.CreateAsync(cliente, ct);
         return ToDto(creado);
     }
@@ -288,9 +291,9 @@ public sealed class ClienteService(IClienteRepository repo) : IClienteService
 
 ---
 
-## PASO 7 — Repositorio (acceso a la BD)
+## PASO A-7 — Repositorio
 
-**Archivo a CREAR:** `Infrastructure/Repositories/ClienteRepository.cs`
+**CREAR:** `Infrastructure/Repositories/ClienteRepository.cs`
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -335,16 +338,16 @@ public sealed class ClienteRepository(AppDbContext db) : IClienteRepository
 
 ---
 
-## PASO 8 — Registrar en AppDbContext y configurar la tabla
+## PASO A-8 — AppDbContext
 
-**Archivo a MODIFICAR:** `Infrastructure/AppDbContext.cs`
+**MODIFICAR:** `Infrastructure/AppDbContext.cs`
 
 Agrega `DbSet` después de la línea de `Movimientos`:
 ```csharp
 public DbSet<Cliente> Clientes => Set<Cliente>();
 ```
 
-Agrega la configuración de la tabla dentro de `OnModelCreating`, al final antes del cierre `}`:
+Agrega la configuración dentro de `OnModelCreating`, antes del cierre `}`:
 ```csharp
 model.Entity<Cliente>(e =>
 {
@@ -361,31 +364,20 @@ model.Entity<Cliente>(e =>
 
 ---
 
-## PASO 9 — Crear la migración (genera la tabla en la BD)
-
-Abre la terminal en la carpeta del proyecto y corre:
+## PASO A-9 — Migración
 
 ```bash
 dotnet ef migrations add AddClientes
-```
-
-Esto crea un archivo nuevo en la carpeta `Migrations/`. Revísalo para confirmar
-que tiene la tabla `clientes` con las columnas correctas.
-
-Luego aplica la migración a la base de datos:
-
-```bash
 dotnet ef database update
 ```
 
-> En producción (Railway) no necesitas correr esto manualmente —
-> `MigrateAsync()` en `Program.cs` lo hace automáticamente al arrancar.
+> En Railway no necesitas correr `database update` — `MigrateAsync()` en `Program.cs` lo hace al arrancar.
 
 ---
 
-## PASO 10 — Endpoints HTTP
+## PASO A-10 — Endpoints
 
-**Archivo a CREAR:** `Endpoints/ClienteEndpoints.cs`
+**CREAR:** `Endpoints/ClienteEndpoints.cs`
 
 ```csharp
 using FluentValidation;
@@ -479,66 +471,43 @@ public static class ClienteEndpoints
 
 ---
 
-## PASO 11 — Registrar en Program.cs
+## PASO A-11 — Program.cs
 
-**Archivo a MODIFICAR:** `Program.cs`
+**MODIFICAR:** `Program.cs`
 
-Busca el bloque donde están registradas las dependencias de Bodega y agrega las de Cliente justo después:
-
+Después de las líneas de Bodega, agrega:
 ```csharp
-// Después de las líneas de IBodegaRepository / IBodegaService
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 ```
 
-Busca donde están los `app.Map...Endpoints()` y agrega:
-
+Donde están los `app.Map...Endpoints()`, agrega:
 ```csharp
 app.MapClienteEndpoints();
 ```
 
 ---
 
-## PASO 12 — Verificar que compila
+## PASO A-12 — Verificar
 
 ```bash
-dotnet build
+dotnet build   # → 0 errores
+dotnet run     # → abre http://localhost:5080/swagger → grupo Clientes con 5 endpoints
 ```
 
-Debe mostrar `0 Errores`. Si hay errores, revisa que los `using` estén correctos en cada archivo.
+Prueba en orden: `POST` → `GET /` → `GET /{id}` → `PUT` → `DELETE`.
 
 ---
 
-## PASO 13 — Probar en Swagger
+## PASO A-13 — Frontend (opcional)
 
-```bash
-dotnet run
-```
+Crea `wwwroot/clientes.html` copiando `wwwroot/bodegas.html` y cambia:
+- Título, encabezado, clase `active` del nav
+- Columnas: `#`, `Nombre`, `Apellido`, `Correo`, `Celular`, `Acciones`
+- Modal: campos `cliNombre`, `cliApellido`, `cliCorreo`, `cliCelular`, `cliDireccion`
+- Script al final: `<script src="/js/clientes.js"></script>`
 
-Abre `http://localhost:5080/swagger` — debes ver el grupo **Clientes** con 5 endpoints.
-
-Prueba en orden:
-1. `POST /api/clientes` — crea un cliente
-2. `GET /api/clientes` — lista todos
-3. `GET /api/clientes/{id}` — obtén el que creaste
-4. `PUT /api/clientes/{id}` — edítalo
-5. `DELETE /api/clientes/{id}` — elimínalo
-
----
-
-## PASO 14 — Frontend (HTML + JS)
-
-Crea `wwwroot/clientes.html` copiando la estructura de `wwwroot/bodegas.html`
-y cambia:
-- El título, encabezado y clase `active` del nav
-- Las columnas de la tabla: `#`, `Nombre`, `Apellido`, `Correo`, `Celular`, `Acciones`
-- El modal: campos `cliNombre`, `cliApellido`, `cliCorreo`, `cliCelular`, `cliDireccion`
-- El script al final: `<script src="/js/clientes.js"></script>`
-
-Crea `wwwroot/js/clientes.js` copiando `wwwroot/js/bodegas.js` y adapta:
-- La URL del fetch: `/api/clientes`
-- Los campos del modal
-- El mapeo de la tabla
+Crea `wwwroot/js/clientes.js` copiando `wwwroot/js/bodegas.js` y adapta la URL y los campos.
 
 Agrega el link en el nav de **todos** los HTML existentes:
 ```html
@@ -551,22 +520,121 @@ Agrega el link en el nav de **todos** los HTML existentes:
 
 ---
 
-## Resumen de archivos
+## Resumen Sección A
 
 | # | Acción | Archivo |
 |---|---|---|
-| 1 | CREAR | `Domain/Entities/Cliente.cs` |
-| 2 | CREAR | `Application/DTOs/ClienteDtos.cs` |
-| 3 | CREAR | `Application/Interfaces/IClienteRepository.cs` |
-| 4 | CREAR | `Application/Interfaces/IClienteService.cs` |
-| 5 | CREAR | `Application/Validators/ClienteValidators.cs` |
-| 6 | CREAR | `Application/Services/ClienteService.cs` |
-| 7 | CREAR | `Infrastructure/Repositories/ClienteRepository.cs` |
-| 8 | MODIFICAR | `Infrastructure/AppDbContext.cs` |
-| 9 | TERMINAL | `dotnet ef migrations add AddClientes` |
-| 10 | CREAR | `Endpoints/ClienteEndpoints.cs` |
-| 11 | MODIFICAR | `Program.cs` |
-| 12 | TERMINAL | `dotnet build` → 0 errores |
-| 13 | TERMINAL | `dotnet run` → probar en Swagger |
-| 14 | CREAR | `wwwroot/clientes.html` + `wwwroot/js/clientes.js` |
-| 15 | MODIFICAR | Todos los `.html` → agregar link en el nav |
+| A-1 | CREAR | `Domain/Entities/Cliente.cs` |
+| A-2 | CREAR | `Application/DTOs/ClienteDtos.cs` |
+| A-3 | CREAR | `Application/Interfaces/IClienteRepository.cs` |
+| A-4 | CREAR | `Application/Interfaces/IClienteService.cs` |
+| A-5 | CREAR | `Application/Validators/ClienteValidators.cs` |
+| A-6 | CREAR | `Application/Services/ClienteService.cs` |
+| A-7 | CREAR | `Infrastructure/Repositories/ClienteRepository.cs` |
+| A-8 | MODIFICAR | `Infrastructure/AppDbContext.cs` |
+| A-9 | TERMINAL | `dotnet ef migrations add AddClientes` + `dotnet ef database update` |
+| A-10 | CREAR | `Endpoints/ClienteEndpoints.cs` |
+| A-11 | MODIFICAR | `Program.cs` |
+| A-12 | TERMINAL | `dotnet build` → `dotnet run` → probar Swagger |
+| A-13 | CREAR | `wwwroot/clientes.html` + `wwwroot/js/clientes.js` + nav en todos los HTML |
+
+---
+
+---
+
+# SECCIÓN B — Nueva instancia por empresa (infraestructura)
+
+Cuando quieras desplegar el sistema para **otra empresa**, cada una tiene
+su propia rama Git + su propia BD en Supabase + su propio deploy en Railway.
+Sus datos nunca se mezclan.
+
+## PASO B-1 — Crear la rama de la empresa
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b cliente-nombre-empresa
+git push origin cliente-nombre-empresa
+```
+
+> Reemplaza `nombre-empresa` con el nombre real. Ejemplo: `cliente-bancolombia`
+
+---
+
+## PASO B-2 — Nueva base de datos en Supabase
+
+1. Entra a https://supabase.com → **New project**
+2. Nombre: `inventario-nombre-empresa`
+3. Contraseña segura (guárdala)
+4. Región: `South America (São Paulo)`
+5. Espera ~2 minutos
+
+**Obtener la connection string:**
+- Menú lateral **Settings** → **Database** → sección **Connection string** → pestaña **URI**
+- Copia la cadena y reemplaza `[TU-PASSWORD]`:
+  ```
+  postgresql://postgres:[TU-PASSWORD]@db.xxxxxxxxxxxx.supabase.co:5432/postgres
+  ```
+
+> Las tablas se crean automáticamente al iniciar la API.
+
+---
+
+## PASO B-3 — Nuevo deploy en Railway
+
+1. https://railway.app → **New project** → **Deploy from GitHub repo**
+2. Repositorio: `prueba-fundacion-mujer`
+3. Branch: `cliente-nombre-empresa`
+4. Railway detecta el Dockerfile → **Deploy**
+
+**Agregar la variable de entorno:**
+- Pestaña **Variables** → agrega:
+  ```
+  ConnectionStrings__DefaultConnection = postgresql://postgres:[PASSWORD]@db.xxx.supabase.co:5432/postgres
+  ```
+
+**Obtener la URL pública:**
+- Pestaña **Settings** → **Domains** → **Generate Domain**
+
+---
+
+## PASO B-4 — Verificar
+
+| Qué probar | URL |
+|---|---|
+| Página principal | `https://tu-url.up.railway.app` |
+| Swagger | `https://tu-url.up.railway.app/swagger` |
+| API | `https://tu-url.up.railway.app/api/bodegas` |
+
+Si Swagger carga con los endpoints → todo funciona.
+La BD ya tiene datos iniciales (1 bodega + 5 productos de ejemplo).
+
+---
+
+## PASO B-5 — Propagar cambios de main a la empresa
+
+```bash
+git checkout cliente-nombre-empresa
+git merge main
+git push origin cliente-nombre-empresa
+```
+
+Railway hace el redeploy automáticamente en ~2 minutos.
+
+---
+
+## Resumen visual
+
+```
+GitHub
+├── main                    ← código base
+├── cliente-bancolombia     ← copia para Bancolombia
+└── cliente-empresa-abc     ← copia para Empresa ABC
+
+Railway
+├── Deploy → main           → BD Supabase original
+├── Deploy → bancolombia    → BD Supabase bancolombia
+└── Deploy → empresa-abc    → BD Supabase empresa-abc
+```
+
+Cada deploy tiene su propia URL y sus propios datos.
