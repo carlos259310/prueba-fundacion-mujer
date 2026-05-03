@@ -44,6 +44,26 @@ Sigue los pasos en orden: cada uno depende del anterior.
 
 ---
 
+## Estado actual
+
+| Paso | Archivo | Estado |
+|---|---|---|
+| A-1 | `Domain/Entities/Cliente.cs` | ✅ Completado |
+| A-2 | `Application/DTOs/ClienteDtos.cs` | ✅ Completado |
+| A-3 | `Application/Interfaces/IClienteRepository.cs` | ✅ Completado |
+| A-4 | `Application/Interfaces/IClienteService.cs` | ✅ Completado |
+| A-5 | `Application/Validators/ClienteValidators.cs` | ✅ Completado |
+| A-6 | `Application/Services/ClienteService.cs` | ✅ Completado |
+| A-7 | `Infrastructure/Repositories/ClienteRepository.cs` | ✅ Completado |
+| A-8 | `Infrastructure/AppDbContext.cs` | ✅ Completado |
+| A-9 | Migración `AddClientes` | ✅ Completado — tabla creada en BD |
+| A-10 | `Endpoints/ClienteEndpoints.cs` | ✅ Completado |
+| A-11 | `Program.cs` | ✅ Completado |
+| A-12 | Verificación Swagger | ✅ Completado — 5 endpoints funcionando |
+| A-13 | Frontend HTML + JS | ⬅️ **Pendiente** |
+
+---
+
 ## PASO A-1 — Entidad de dominio
 
 **CREAR:** `Domain/Entities/Cliente.cs`
@@ -645,31 +665,381 @@ Prueba en este orden (cada paso depende del anterior):
 
 ---
 
-## PASO A-13 — Frontend (opcional)
+## PASO A-13 — Frontend (HTML + JS)
 
-**Qué es:** Las vistas HTML que consumen la API desde el navegador.
-Son complementarias — la evaluación principal es el backend/Swagger,
-pero el frontend muestra que el sistema funciona de extremo a extremo.
+**Qué es:** La vista que consume la API desde el navegador. Sigue exactamente
+el mismo patrón que `bodegas.html` / `bodegas.js` — solo cambian los campos y la URL.
 
-**Estrategia:** Copia los archivos de Bodegas (que ya funcionan) y adapta
-los campos. Es más rápido que empezar desde cero y garantiza consistencia visual.
+**Hay dos partes:**
+1. Crear `wwwroot/clientes.html`
+2. Crear `wwwroot/js/clientes.js`
+3. Agregar el link de Clientes en el nav de todos los HTML existentes
 
-Crea `wwwroot/clientes.html` copiando `wwwroot/bodegas.html` y cambia:
-- Título, encabezado, clase `active` del nav
-- Columnas de la tabla: `#`, `Nombre`, `Apellido`, `Correo`, `Celular`, `Acciones`
-- Modal: campos `cliNombre`, `cliApellido`, `cliCorreo`, `cliCelular`, `cliDireccion`
-- Script al final: `<script src="/js/clientes.js"></script>`
+---
 
-Crea `wwwroot/js/clientes.js` copiando `wwwroot/js/bodegas.js` y adapta la URL y los campos.
+### A-13-1 — Crear `wwwroot/clientes.html`
 
-Agrega el link en el nav de **todos** los HTML existentes:
 ```html
-<li class="nav-item">
-  <a class="nav-link" href="/clientes.html">
-    <i class="bi bi-people me-1"></i>Clientes
-  </a>
-</li>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes — ProductCatalog</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-brand px-3 px-lg-4">
+    <a class="navbar-brand fw-bold" href="/index.html"><i class="bi bi-box-seam me-2"></i>ProductCatalog</a>
+    <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-1">
+        <li class="nav-item"><a class="nav-link" href="/bodegas.html"><i class="bi bi-building me-1"></i>Bodegas</a></li>
+        <li class="nav-item"><a class="nav-link" href="/productos.html"><i class="bi bi-box me-1"></i>Productos</a></li>
+        <li class="nav-item"><a class="nav-link" href="/inventario.html"><i class="bi bi-archive me-1"></i>Inventario</a></li>
+        <li class="nav-item"><a class="nav-link" href="/movimientos.html"><i class="bi bi-arrow-left-right me-1"></i>Movimientos</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/clientes.html"><i class="bi bi-people me-1"></i>Clientes</a></li>
+        <li class="nav-item"><a class="nav-link" href="/about.html"><i class="bi bi-info-circle me-1"></i>Acerca de</a></li>
+        <li class="nav-item ms-lg-2"><a class="nav-link" href="/swagger" target="_blank"><i class="bi bi-code-slash me-1"></i>API Docs</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="container py-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+      <div>
+        <h5 class="fw-bold mb-0"><i class="bi bi-people me-2 text-brand"></i>Clientes</h5>
+        <small class="text-muted">Registro de clientes del negocio</small>
+      </div>
+      <button class="btn btn-brand" onclick="abrirCrear()">
+        <i class="bi bi-plus-lg me-1"></i>Nuevo Cliente
+      </button>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-brand">
+              <tr>
+                <th class="ps-4" style="width:60px">#</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Correo</th>
+                <th>Celular</th>
+                <th class="text-end pe-4" style="width:110px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaBody">
+              <tr><td colspan="6" class="text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm me-2"></div>Cargando...
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL CREAR / EDITAR -->
+  <div class="modal fade" id="modalCliente" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header brand">
+          <h5 class="modal-title" id="modalTitulo">Nuevo Cliente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="cliIdEdit">
+
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label fw-medium">Nombre <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cliNombre" maxlength="100" placeholder="Ej: Carlos">
+              <div class="invalid-feedback">El nombre es obligatorio.</div>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-medium">Apellido <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cliApellido" maxlength="100" placeholder="Ej: Rodríguez">
+              <div class="invalid-feedback">El apellido es obligatorio.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-medium">Correo electrónico</label>
+              <input type="email" class="form-control" id="cliCorreo" maxlength="150" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-medium">Celular</label>
+              <input type="text" class="form-control" id="cliCelular" maxlength="20" placeholder="Ej: 3001234567">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-medium">Dirección</label>
+              <input type="text" class="form-control" id="cliDireccion" maxlength="200" placeholder="Ej: Calle 123">
+            </div>
+          </div>
+
+          <div id="modalError" class="alert alert-danger py-2 mt-3 d-none"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-brand px-4" onclick="guardar()">
+            <i class="bi bi-check-lg me-1"></i>Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ELIMINAR -->
+  <div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-body text-center pt-4">
+          <div class="mb-3"><span style="font-size:2.5rem">🗑️</span></div>
+          <p class="fw-semibold mb-1">¿Eliminar cliente?</p>
+          <p class="text-muted small mb-0" id="nombreEliminar"></p>
+          <small class="text-danger">Esta acción no se puede deshacer.</small>
+        </div>
+        <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+          <button class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-danger btn-sm px-3" onclick="confirmarEliminar()">
+            <i class="bi bi-trash me-1"></i>Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+    <div id="toast" class="toast align-items-center text-white border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body fw-medium" id="toastMsg"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+      <span><i class="bi bi-box-seam me-1"></i><strong class="text-white">ProductCatalog</strong> · Fundación de la Mujer</span>
+      <span>
+        Desarrollado por <strong class="text-white">Ing. Carlos Rodriguez</strong>
+        <span class="mx-2 opacity-50">·</span>
+        <a href="/swagger" target="_blank"><i class="bi bi-code-slash me-1"></i>API Docs</a>
+        <span class="mx-2 opacity-50">·</span>© 2026
+      </span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/clientes.js"></script>
+</body>
+</html>
 ```
+
+---
+
+### A-13-2 — Crear `wwwroot/js/clientes.js`
+
+```js
+/* ─── Estado ──────────────────────────────────────────── */
+let idEliminar = null;
+
+/* ─── Init ────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', cargarClientes);
+
+/* ─── Carga y render ──────────────────────────────────── */
+async function cargarClientes() {
+  setTablaLoading();
+  try {
+    const res = await fetch('/api/clientes');
+    if (!res.ok) throw new Error();
+    const items = await res.json();
+    renderTabla(items);
+  } catch {
+    setTablaError();
+  }
+}
+
+function renderTabla(items) {
+  const tbody = document.getElementById('tablaBody');
+  if (!items.length) {
+    tbody.innerHTML = `
+      <tr><td colspan="6" class="text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-3 d-block mb-2"></i>Sin clientes registrados
+      </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(c => `
+    <tr>
+      <td class="ps-4 text-muted small">${c.cliId}</td>
+      <td class="fw-semibold">${esc(c.cliNombre)}</td>
+      <td>${esc(c.cliApellido)}</td>
+      <td class="text-muted small">${esc(c.cliCorreo) || '—'}</td>
+      <td class="text-muted small">${esc(c.cliCelular) || '—'}</td>
+      <td class="text-end pe-4">
+        <button class="btn btn-sm btn-outline-secondary me-1" title="Editar"
+          onclick="abrirEditar(${c.cliId})">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" title="Eliminar"
+          onclick="abrirEliminar(${c.cliId}, '${esc(c.cliNombre + ' ' + c.cliApellido).replace(/'/g, "\\'")}')">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+/* ─── Modal Crear ─────────────────────────────────────── */
+function abrirCrear() {
+  document.getElementById('modalTitulo').textContent = 'Nuevo Cliente';
+  document.getElementById('cliIdEdit').value = '';
+  ['cliNombre','cliApellido','cliCorreo','cliCelular','cliDireccion'].forEach(id => {
+    document.getElementById(id).value = '';
+    document.getElementById(id).classList.remove('is-invalid');
+  });
+  ocultarError();
+  getModal('modalCliente').show();
+}
+
+/* ─── Modal Editar ────────────────────────────────────── */
+async function abrirEditar(id) {
+  try {
+    const res = await fetch(`/api/clientes/${id}`);
+    if (!res.ok) throw new Error();
+    const c = await res.json();
+    document.getElementById('modalTitulo').textContent = 'Editar Cliente';
+    document.getElementById('cliIdEdit').value   = c.cliId;
+    document.getElementById('cliNombre').value   = c.cliNombre   ?? '';
+    document.getElementById('cliApellido').value = c.cliApellido ?? '';
+    document.getElementById('cliCorreo').value   = c.cliCorreo   ?? '';
+    document.getElementById('cliCelular').value  = c.cliCelular  ?? '';
+    document.getElementById('cliDireccion').value= c.cliDireccion?? '';
+    ['cliNombre','cliApellido'].forEach(id => document.getElementById(id).classList.remove('is-invalid'));
+    ocultarError();
+    getModal('modalCliente').show();
+  } catch {
+    toast('No se pudo cargar el cliente', 'danger');
+  }
+}
+
+/* ─── Guardar (crear / actualizar) ───────────────────── */
+async function guardar() {
+  const id       = document.getElementById('cliIdEdit').value;
+  const nombre   = document.getElementById('cliNombre').value.trim();
+  const apellido = document.getElementById('cliApellido').value.trim();
+
+  let valido = true;
+  if (!nombre)   { document.getElementById('cliNombre').classList.add('is-invalid');   valido = false; }
+  else             document.getElementById('cliNombre').classList.remove('is-invalid');
+  if (!apellido) { document.getElementById('cliApellido').classList.add('is-invalid'); valido = false; }
+  else             document.getElementById('cliApellido').classList.remove('is-invalid');
+  if (!valido) return;
+
+  const body = {
+    cliNombre:    nombre,
+    cliApellido:  apellido,
+    cliCorreo:    document.getElementById('cliCorreo').value.trim()    || null,
+    cliCelular:   document.getElementById('cliCelular').value.trim()   || null,
+    cliDireccion: document.getElementById('cliDireccion').value.trim() || null,
+  };
+
+  const res = await fetch(id ? `/api/clientes/${id}` : '/api/clientes', {
+    method:  id ? 'PUT' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body),
+  });
+
+  if (res.ok) {
+    getModal('modalCliente').hide();
+    cargarClientes();
+    toast(id ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente', 'success');
+  } else {
+    const err = await res.json().catch(() => ({}));
+    mostrarError(err.title ?? err.error ?? 'Error al guardar el cliente.');
+  }
+}
+
+/* ─── Modal Eliminar ──────────────────────────────────── */
+function abrirEliminar(id, nombre) {
+  idEliminar = id;
+  document.getElementById('nombreEliminar').textContent = nombre;
+  getModal('modalEliminar').show();
+}
+
+async function confirmarEliminar() {
+  getModal('modalEliminar').hide();
+  const res = await fetch(`/api/clientes/${idEliminar}`, { method: 'DELETE' });
+  if (res.ok) {
+    cargarClientes();
+    toast('Cliente eliminado', 'success');
+  } else {
+    const err = await res.json().catch(() => ({}));
+    toast(err.error ?? 'No se pudo eliminar el cliente', 'danger');
+  }
+}
+
+/* ─── Helpers ─────────────────────────────────────────── */
+function esc(str) {
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function getModal(id) { return bootstrap.Modal.getOrCreateInstance(document.getElementById(id)); }
+function ocultarError() { document.getElementById('modalError').classList.add('d-none'); }
+function mostrarError(msg) {
+  const el = document.getElementById('modalError');
+  el.textContent = msg;
+  el.classList.remove('d-none');
+}
+function setTablaLoading() {
+  document.getElementById('tablaBody').innerHTML =
+    '<tr><td colspan="6" class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Cargando...</td></tr>';
+}
+function setTablaError() {
+  document.getElementById('tablaBody').innerHTML =
+    '<tr><td colspan="6" class="text-center py-5 text-danger"><i class="bi bi-exclamation-circle me-2"></i>Error al cargar clientes</td></tr>';
+}
+function toast(msg, tipo = 'success') {
+  const el = document.getElementById('toast');
+  el.className = `toast align-items-center text-white border-0 bg-${tipo}`;
+  document.getElementById('toastMsg').textContent = msg;
+  bootstrap.Toast.getOrCreateInstance(el, { delay: 3000 }).show();
+}
+```
+
+---
+
+### A-13-3 — Agregar el link de Clientes en el nav de todos los HTML
+
+En los archivos `bodegas.html`, `productos.html`, `inventario.html`,
+`movimientos.html`, `about.html` e `index.html`, busca el bloque `<ul class="navbar-nav...`
+y agrega esta línea **antes** del link de Acerca de:
+
+```html
+<li class="nav-item"><a class="nav-link" href="/clientes.html"><i class="bi bi-people me-1"></i>Clientes</a></li>
+```
+
+---
+
+### A-13-4 — Verificar el frontend
+
+```bash
+dotnet run
+```
+
+Abre `http://localhost:5080/clientes.html` y prueba:
+1. Crear un cliente (nombre y apellido requeridos)
+2. Editar el cliente creado
+3. Intentar crear con campos vacíos → debe mostrar error de validación
+4. Eliminar el cliente → debe desaparecer de la tabla
 
 ---
 
