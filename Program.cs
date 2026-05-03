@@ -116,6 +116,9 @@ builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IMovimientoRepository, MovimientoRepository>();
 builder.Services.AddScoped<IMovimientoService, MovimientoService>();
 
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IClienteService, ClienteService>();
+
 builder.Services.AddCors(opt =>
     opt.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
@@ -162,5 +165,6 @@ app.MapBodegaEndpoints();
 app.MapProductoEndpoints();
 app.MapInventarioEndpoints();
 app.MapMovimientoEndpoints();
+app.MapClienteEndpoints();
 
 app.Run();

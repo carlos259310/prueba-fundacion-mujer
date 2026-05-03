@@ -9,6 +9,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Producto> Productos => Set<Producto>();
     public DbSet<Inventario> Inventarios => Set<Inventario>();
     public DbSet<Movimiento> Movimientos => Set<Movimiento>();
+    public DbSet<Cliente> Clientes => Set<Cliente>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -58,6 +59,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(x => x.MovConcepto).HasColumnName("mov_concepto").HasConversion<string>();
             e.Property(x => x.MovFecha).HasColumnName("mov_fecha");
             e.HasOne(x => x.Producto).WithMany().HasForeignKey(x => x.ProdId);
+        });
+
+        model.Entity<Cliente>(e =>
+        {
+            e.ToTable("clientes");
+            e.HasKey(x => x.CliId);
+            e.Property(x => x.CliId).HasColumnName("cli_id").UseIdentityColumn();
+            e.Property(x => x.CliNombre).HasColumnName("cli_nombre").HasMaxLength(100).IsRequired();
+            e.Property(x => x.CliApellido).HasColumnName("cli_apellido").HasMaxLength(100).IsRequired();
+            e.Property(x => x.CliCorreo).HasColumnName("cli_correo").HasMaxLength(150);
+            e.Property(x => x.CliCelular).HasColumnName("cli_celular").HasMaxLength(20);
+            e.Property(x => x.CliDireccion).HasColumnName("cli_direccion").HasMaxLength(200);
         });
     }
 }
